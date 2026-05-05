@@ -1,0 +1,8 @@
+{
+  "name": "hrm-root",
+  "private": true,
+  "scripts": {
+    "dev": ".\\start-hrm.bat",
+    "start": "npm run dev"
+  }
+}

@@ -1,0 +1,195 @@
+/* ── Page Header ── */
+.page-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:22px; gap:14px; flex-wrap:wrap; }
+.page-header-left h2 { font-size:1.45rem; letter-spacing:-.03em; }
+.page-header-left p  { font-size:.83rem; color:var(--text-muted); margin-top:3px; }
+.page-header-actions { display:flex; gap:9px; align-items:center; flex-wrap:wrap; }
+
+/* ── Employee Grid ── */
+.employee-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(275px,1fr)); gap:18px; }
+.employee-card { background:var(--bg-card); border-radius:var(--radius-lg); border:1px solid var(--border); overflow:hidden; transition:all var(--transition); }
+.employee-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
+.employee-card-header { background:linear-gradient(135deg,var(--primary) 0%,var(--surface) 100%); padding:18px; display:flex; align-items:center; gap:13px; }
+.employee-card-avatar { width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:800; font-size:1.05rem; color:#fff; border:3px solid rgba(255,255,255,.18); flex-shrink:0; }
+.employee-card-name { font-family:var(--font-display); font-size:.97rem; font-weight:700; color:#fff; }
+.employee-card-id   { font-size:.72rem; color:rgba(255,255,255,.48); margin-top:2px; }
+.employee-card-body { padding:14px 18px; }
+.employee-card-detail { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border-light); font-size:.8rem; }
+.employee-card-detail:last-child { border-bottom:none; }
+.employee-card-detail span:first-child { color:var(--text-muted); }
+.employee-card-detail span:last-child  { color:var(--text-primary); font-weight:500; }
+.employee-card-footer { padding:11px 18px; border-top:1px solid var(--border-light); background:var(--bg); display:flex; gap:7px; }
+
+/* ── Attendance ── */
+.attendance-summary-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin-bottom:22px; }
+.attendance-summary-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; text-align:center; }
+.attendance-summary-card .value {
+  font-family: var(--font-body);   /* normal font */
+  font-size: 2rem;                 /* normal size */
+  font-weight: 800;               /* not bold */
+  letter-spacing: normal;
+}
+.attendance-summary-card .label { font-size:.73rem; color:var(--text-muted); margin-top:5px; font-weight:500; }
+.attendance-summary-card.present .value { color: #6b7280; }
+.attendance-summary-card.absent  .value { color:var(--danger); }
+.attendance-summary-card.leave   .value { color: #6b7280; }
+.attendance-summary-card.late    .value {color: #6b7280; }
+.attendance-summary-card.half    .value { color: #6b7280; }
+
+.checkin-card { background:linear-gradient(135deg,var(--primary) 0%,var(--surface) 100%); border-radius:var(--radius-xl); padding:26px 30px; color:#fff; margin-bottom:22px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:18px; }
+.checkin-time {
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+.checkin-date { font-size:.85rem; color:rgba(255,255,255,.55); margin-top:5px; }
+.checkin-actions { display:flex; gap:11px; flex-wrap:wrap; }
+.btn-checkin  { background:var(--success); color:#fff; padding:11px 22px; border-radius:var(--radius-sm); border:none; font-size:.88rem; font-weight:600; font-family:var(--font-body); cursor:pointer; transition:all var(--transition); display:flex; align-items:center; gap:7px; }
+.btn-checkin:hover { background:#059669; transform:translateY(-1px); }
+.btn-checkout { background:rgba(255,255,255,.13); color:#fff; padding:11px 22px; border-radius:var(--radius-sm); border:1px solid rgba(255,255,255,.18); font-size:.88rem; font-weight:600; font-family:var(--font-body); cursor:pointer; transition:all var(--transition); display:flex; align-items:center; gap:7px; }
+.btn-checkout:hover { background:rgba(255,255,255,.22); }
+
+/* ── Leave Balances ── */
+.leave-balance-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:22px; }
+.leave-balance-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; text-align:center; position:relative; overflow:hidden; }
+.leave-balance-card::before { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; }
+.leave-balance-card.annual::before  { background:var(--info); }
+.leave-balance-card.sick::before    { background:var(--danger); }
+.leave-balance-card.casual::before  { background:var(--warning); }
+.leave-balance-value { font-family:var(--font-display); font-size:2.1rem; font-weight:800; letter-spacing:-.04em; color:var(--text-primary); }
+.leave-balance-type  { font-size:.78rem; color:var(--text-muted); margin-top:4px; font-weight:500; }
+.leave-balance-total { font-size:.7rem; color:var(--text-muted); margin-top:5px; }
+
+/* ── Payslip ── */
+.payslip { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden; max-width:680px; margin:0 auto; }
+.payslip-header { background:linear-gradient(135deg,var(--primary) 0%,var(--surface) 100%); padding:26px 30px; color:#fff; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px; }
+.payslip-company { font-family:var(--font-display); font-size:1.25rem; font-weight:800; }
+.payslip-period  { font-size:.82rem; color:rgba(255,255,255,.55); margin-top:3px; }
+.payslip-emp-info { text-align:right; }
+.payslip-emp-name { font-weight:700; font-size:.97rem; }
+.payslip-emp-id   { font-size:.78rem; color:rgba(255,255,255,.55); margin-top:2px; }
+.payslip-body { padding:26px 30px; }
+.payslip-row { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-bottom:22px; }
+.payslip-section-title { font-family:var(--font-display); font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:10px; }
+.payslip-line { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border-light); font-size:.86rem; }
+.payslip-line:last-child { border-bottom:none; }
+.payslip-line span:first-child { color:var(--text-secondary); }
+.payslip-line span:last-child  { font-weight:600; }
+.payslip-line.deduction span:last-child { color:var(--danger); }
+.payslip-net { background:var(--primary); color:#fff; padding:18px 30px; display:flex; justify-content:space-between; align-items:center; }
+.payslip-net-label { font-family:var(--font-display); font-size:.88rem; opacity:.65; }
+.payslip-net-value { font-family:var(--font-display); font-size:1.75rem; font-weight:800; letter-spacing:-.03em; }
+
+/* ── Department Cards ── */
+.dept-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; }
+.dept-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:22px; transition:all var(--transition); }
+.dept-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); border-color:rgba(233,69,96,.28); }
+.dept-card-icon  { width:46px; height:46px; border-radius:var(--radius-md); background:var(--accent-soft); display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin-bottom:14px; }
+.dept-card-name  { font-family:var(--font-display); font-size:1rem; font-weight:700; color:var(--text-primary); margin-bottom:5px; }
+.dept-card-desc  { font-size:.8rem; color:var(--text-muted); line-height:1.5; margin-bottom:14px; }
+.dept-card-stats { display:flex; gap:14px; padding-top:14px; border-top:1px solid var(--border-light); }
+.dept-stat { flex:1; text-align:center; }
+.dept-stat-value { font-family:var(--font-display); font-size:1.25rem; font-weight:800; color:var(--text-primary); }
+.dept-stat-label { font-size:.69rem; color:var(--text-muted); margin-top:2px; }
+.dept-card-actions { display:flex; gap:7px; margin-top:14px; }
+
+/* ── Profile ── */
+.profile-header-card { background:linear-gradient(135deg,var(--primary) 0%,var(--surface) 100%); border-radius:var(--radius-xl); padding:30px; color:#fff; display:flex; align-items:center; gap:22px; margin-bottom:22px; flex-wrap:wrap; }
+.profile-avatar { width:84px; height:84px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:800; font-size:1.9rem; color:#fff; border:4px solid rgba(255,255,255,.18); flex-shrink:0; }
+.profile-info h2 { font-size:1.7rem; letter-spacing:-.03em; margin-bottom:4px; }
+.profile-info p  { color:rgba(255,255,255,.55); font-size:.88rem; }
+.profile-meta { display:flex; gap:18px; margin-top:10px; flex-wrap:wrap; }
+.profile-meta-item { display:flex; align-items:center; gap:5px; font-size:.8rem; color:rgba(255,255,255,.55); }
+.profile-details-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.profile-detail-label { font-size:.73rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); font-weight:700; margin-bottom:3px; }
+.profile-detail-value { font-size:.93rem; color:var(--text-primary); font-weight:500; }
+
+@media (max-width:768px) {
+  .profile-details-grid { grid-template-columns:1fr; }
+  .payslip-row { grid-template-columns:1fr; }
+}
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+
+  /* Single column grids */
+  .employee-grid,
+  .dept-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Dashboard stats 2 columns */
+  .dashboard-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Checkin card stacks */
+  .checkin-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px;
+  }
+
+  .checkin-time {
+    font-size: 2rem;
+  }
+
+  .checkin-actions {
+    width: 100%;
+  }
+
+  .btn-checkin,
+  .btn-checkout {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Leave balance 2 columns */
+  .leave-balance-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Attendance summary 3 columns */
+  .attendance-summary-cards {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  /* Payslip stacks */
+  .payslip-row {
+    grid-template-columns: 1fr;
+  }
+
+  .payslip-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .payslip-emp-info {
+    text-align: left;
+  }
+
+  .payslip-net {
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 20px;
+  }
+
+  /* Profile stacks */
+  .profile-header-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Welcome banner stacks */
+  .welcome-banner {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .welcome-emoji {
+    display: none;
+  }
+}
