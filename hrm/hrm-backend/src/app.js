@@ -25,7 +25,11 @@ const app = express();
 // ─── Security & Parsing Middleware ───────────────────────────────────────────
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
+   origin: [
+    'http://localhost:3000',
+    'https://your-app.vercel.app',   // ← add your Vercel URL here
+    /\.vercel\.app$/,                // ← allow all vercel preview URLs
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
