@@ -4,11 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { Alert } from '../components/common/index.jsx'
 import '../styles/login.css'
 
-const DEMOS = [
-  { label: 'Admin',    email: 'admin@hrm.com', password: 'Admin@123', slug: 'hrm' },
-  { label: 'Manager',  email: 'manager@hrm.com', password: 'Manager@123', slug: 'hrm' },
-  { label: 'Employee', email: 'ravi@hrm.com',  password: 'Emp@12345', slug: 'hrm' },
-]
+
 
 export default function Login() {
   const [form, setForm]       = useState({ email: '', password: '', slug: '' })
@@ -101,16 +97,7 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="demo-credentials">
-            <h4>Demo Accounts — click to fill</h4>
-            {DEMOS.map((d) => (
-              <div key={d.label} className="demo-cred-item" onClick={() => setForm({ email: d.email, password: d.password, slug: d.slug })}>
-                <strong>{d.label}</strong>
-                <span>{d.email}</span>
-              </div>
-            ))}
-          </div>
-
+          
           <div style={{ textAlign: 'center', marginTop: 16, fontSize: '.85rem', color: 'var(--text-muted)' }}>
             New company? <a href="/register" style={{ color: 'var(--accent)', fontWeight: 600 }}>Register your company and try one month free trial -&gt;</a>
           </div>
