@@ -1,9 +1,9 @@
-const Company = require('../models/Company');
-const Employee = require('../models/Employee');
-const { generateCompanyToken } = require('../utils/generateToken');
-const { successResponse } = require('../utils/apiResponse');
+import Company from '../models/Company.js';
+import Employee from '../models/Employee.js';
+import { generateCompanyToken } from '../utils/generateToken.js';
+import { successResponse } from '../utils/apiResponse.js';
 
-exports.registerCompany = async (req, res, next) => {
+export const registerCompany = async (req, res, next) => {
   let company = null;
 
   try {
@@ -61,7 +61,7 @@ exports.registerCompany = async (req, res, next) => {
   }
 };
 
-exports.loginCompany = async (req, res, next) => {
+export const loginCompany = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -91,7 +91,7 @@ exports.loginCompany = async (req, res, next) => {
   }
 };
 
-exports.getCurrentCompany = async (req, res, next) => {
+export const getCurrentCompany = async (req, res, next) => {
   try {
     return successResponse(res, 200, 'Current company fetched', {
       company: {

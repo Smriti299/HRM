@@ -1,6 +1,6 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
-exports.applyLeaveValidator = [
+export const applyLeaveValidator = [
   body('leaveType')
     .isIn(['Annual', 'Sick', 'Casual', 'Unpaid'])
     .withMessage('leaveType must be Annual, Sick, Casual, or Unpaid'),
@@ -9,7 +9,7 @@ exports.applyLeaveValidator = [
   body('reason').trim().notEmpty().withMessage('Reason is required'),
 ];
 
-exports.reviewLeaveValidator = [
+export const reviewLeaveValidator = [
   body('status')
     .isIn(['Approved', 'Rejected'])
     .withMessage('Status must be Approved or Rejected'),

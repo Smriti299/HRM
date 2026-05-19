@@ -2,6 +2,7 @@
   "name": "hrm-backend",
   "version": "1.0.0",
   "description": "Human Resource Management System Backend",
+  "type": "module",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",

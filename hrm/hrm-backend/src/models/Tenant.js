@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const tenantSchema = new mongoose.Schema({
   companyId: {
@@ -25,4 +25,4 @@ tenantSchema.index(
   { unique: true, partialFilterExpression: { companyId: { $exists: true } } }
 );
 
-module.exports = mongoose.model('Tenant', tenantSchema);
+export default mongoose.model('Tenant', tenantSchema);

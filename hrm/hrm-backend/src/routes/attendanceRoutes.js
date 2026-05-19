@@ -1,13 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router  = express.Router();
-const {
-  checkIn, checkOut, getAttendance, getAllAttendance,
-  markAttendance, editAttendance, getTodaySummary,
-} = require('../controllers/attendanceController');
-const { protect, authorize } = require('../middleware/auth');
-const validate = require('../middleware/validate');
-const { markAttendanceValidator } = require('../validators/attendanceValidators');
-const scopeToTenant = require('../middleware/scopeToTenant');
+import { checkIn, checkOut, getAttendance, getAllAttendance,
+  markAttendance, editAttendance, getTodaySummary, } from '../controllers/attendanceController.js';
+import { protect, authorize } from '../middleware/auth.js';
+import validate from '../middleware/validate.js';
+import { markAttendanceValidator } from '../validators/attendanceValidators.js';
+import scopeToTenant from '../middleware/scopeToTenant.js';
 router.use(protect);
 router.use(scopeToTenant); 
 // Employee self-service
@@ -23,4 +21,4 @@ router.put('/:id',           authorize('Admin', 'Manager', 'HR'), editAttendance
 // Dynamic param — must be LAST
 router.get('/:employeeId', getAttendance);
 
-module.exports = router;
+export default router;

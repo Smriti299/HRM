@@ -1,20 +1,16 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
-  applyLeave,
+import { applyLeave,
   getLeaves,
   getLeave,
   reviewLeave,
   cancelLeave,
-  getLeaveBalance,
-} = require('../controllers/leaveController');
-const { protect, authorize } = require('../middleware/auth');
-const validate = require('../middleware/validate');
-const scopeToTenant = require('../middleware/scopeToTenant');
-const {
-  applyLeaveValidator,
-  reviewLeaveValidator,
-} = require('../validators/leaveValidators');
+  getLeaveBalance, } from '../controllers/leaveController.js';
+import { protect, authorize } from '../middleware/auth.js';
+import validate from '../middleware/validate.js';
+import scopeToTenant from '../middleware/scopeToTenant.js';
+import { applyLeaveValidator,
+  reviewLeaveValidator, } from '../validators/leaveValidators.js';
 
 router.use(protect);
 router.use(scopeToTenant); 
@@ -25,4 +21,4 @@ router.get('/:id', getLeave);
 router.put('/:id/review', authorize('Admin', 'Manager', 'HR'), reviewLeaveValidator, validate, reviewLeave);
 router.put('/:id/cancel', cancelLeave);
 
-module.exports = router;
+export default router;

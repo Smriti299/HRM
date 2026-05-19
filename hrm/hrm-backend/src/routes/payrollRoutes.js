@@ -1,16 +1,14 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
-  generatePayroll,
+import { generatePayroll,
   getPayslip,
   getAllPayrolls,
   markAsPaid,
-  getPayrollSummary,
-} = require('../controllers/payrollController');
-const { protect, authorize } = require('../middleware/auth');
-const validate = require('../middleware/validate');
-const { generatePayrollValidator } = require('../validators/payrollValidators');
-const scopeToTenant = require('../middleware/scopeToTenant');
+  getPayrollSummary, } from '../controllers/payrollController.js';
+import { protect, authorize } from '../middleware/auth.js';
+import validate from '../middleware/validate.js';
+import { generatePayrollValidator } from '../validators/payrollValidators.js';
+import scopeToTenant from '../middleware/scopeToTenant.js';
 router.use(protect);
 router.use(scopeToTenant); 
 // Admin/HR only
@@ -22,4 +20,4 @@ router.put('/:id/mark-paid', authorize('Admin'), markAsPaid);
 // Employee: /api/payroll/me  or  Admin/HR: /api/payroll/:employeeId
 router.get('/:employeeId', getPayslip);
 
-module.exports = router;
+export default router;

@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const employeeSchema = new mongoose.Schema(
   {
@@ -145,4 +145,4 @@ employeeSchema.index(
   { tenantId: 1, employeeId: 1 },
   { unique: true, partialFilterExpression: { tenantId: { $exists: true } } }
 );
-module.exports = mongoose.model('Employee', employeeSchema);
+export default mongoose.model('Employee', employeeSchema);

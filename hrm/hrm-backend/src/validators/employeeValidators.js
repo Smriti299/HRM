@@ -1,6 +1,6 @@
-const { body, query } = require('express-validator');
+import { body, query } from 'express-validator';
 
-exports.updateEmployeeValidator = [
+export const updateEmployeeValidator = [
   body('firstName').optional().trim().notEmpty().withMessage('First name cannot be empty'),
   body('lastName').optional().trim().notEmpty().withMessage('Last name cannot be empty'),
   body('phone')
@@ -14,7 +14,7 @@ exports.updateEmployeeValidator = [
   body('salary.basic').optional().isNumeric().withMessage('Basic salary must be a number'),
 ];
 
-exports.paginationValidator = [
+export const paginationValidator = [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be 1–100'),
 ];

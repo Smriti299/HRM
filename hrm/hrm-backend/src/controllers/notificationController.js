@@ -1,8 +1,8 @@
-const Notification = require('../models/Notification');
-const { successResponse } = require('../utils/apiResponse');
+import Notification from '../models/Notification.js';
+import { successResponse } from '../utils/apiResponse.js';
 
 // GET /api/notifications  — own notifications (paginated)
-exports.getMyNotifications = async (req, res, next) => {
+export const getMyNotifications = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, unreadOnly } = req.query;
     const query = { recipient: req.user._id };
@@ -25,7 +25,7 @@ exports.getMyNotifications = async (req, res, next) => {
 };
 
 // PUT /api/notifications/:id/read
-exports.markOneRead = async (req, res, next) => {
+export const markOneRead = async (req, res, next) => {
   try {
     await Notification.findOneAndUpdate(
       { _id: req.params.id, recipient: req.user._id, ...req.tenantFilter },
@@ -36,7 +36,7 @@ exports.markOneRead = async (req, res, next) => {
 };
 
 // PUT /api/notifications/read-all
-exports.markAllRead = async (req, res, next) => {
+export const markAllRead = async (req, res, next) => {
   try {
     await Notification.updateMany({ recipient: req.user._id, isRead: false, ...req.tenantFilter }, { isRead: true });
     return successResponse(res, 200, 'All notifications marked as read');
@@ -44,7 +44,7 @@ exports.markAllRead = async (req, res, next) => {
 };
 
 // GET /api/notifications/unread-count
-exports.getUnreadCount = async (req, res, next) => {
+export const getUnreadCount = async (req, res, next) => {
   try {
     const count = await Notification.countDocuments({ recipient: req.user._id, isRead: false, ...req.tenantFilter });
     return successResponse(res, 200, 'Unread count', { count });
@@ -52,7 +52,7 @@ exports.getUnreadCount = async (req, res, next) => {
 };
 
 // DELETE /api/notifications/:id
-exports.deleteOne = async (req, res, next) => {
+export const deleteOne = async (req, res, next) => {
   try {
     await Notification.findOneAndDelete({ _id: req.params.id, recipient: req.user._id, ...req.tenantFilter });
     return successResponse(res, 200, 'Notification deleted');

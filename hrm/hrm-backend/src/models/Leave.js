@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const leaveSchema = new mongoose.Schema(
   {
@@ -90,4 +90,4 @@ leaveSchema.pre('save', function (next) {
   next();
 });
 
-module.exports = mongoose.model('Leave', leaveSchema);
+export default mongoose.model('Leave', leaveSchema);

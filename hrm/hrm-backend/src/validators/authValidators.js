@@ -1,6 +1,6 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
-exports.registerValidator = [
+export const registerValidator = [
   body('firstName').trim().notEmpty().withMessage('First name is required'),
   body('lastName').trim().notEmpty().withMessage('Last name is required'),
   body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
@@ -13,7 +13,7 @@ exports.registerValidator = [
     .withMessage('Role must be Admin, Manager, or Employee'),
 ];
 
-exports.loginValidator = [
+export const loginValidator = [
   body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('password').notEmpty().withMessage('Password is required'),
   body('slug')
@@ -32,7 +32,7 @@ exports.loginValidator = [
     .normalizeEmail(),
 ];
 
-exports.changePasswordValidator = [
+export const changePasswordValidator = [
   body('currentPassword').notEmpty().withMessage('Current password is required'),
   body('newPassword')
     .isLength({ min: 6 })

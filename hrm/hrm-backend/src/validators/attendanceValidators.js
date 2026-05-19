@@ -1,6 +1,6 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
-exports.markAttendanceValidator = [
+export const markAttendanceValidator = [
   body('employee').isMongoId().withMessage('Valid employee ID is required'),
   body('date').isISO8601().withMessage('Valid date is required'),
   body('status')

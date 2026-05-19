@@ -1,4 +1,4 @@
-const Tenant = require('../models/Tenant');
+import Tenant from '../models/Tenant.js';
 
 const resolveTenant = async (req, res, next) => {
   try {
@@ -50,4 +50,4 @@ const resolveTenant = async (req, res, next) => {
   }
 };
 
-module.exports = { resolveTenant };
+export { resolveTenant };

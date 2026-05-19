@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router  = express.Router();
-const { registerTenant, getMyTenant, updateTenant } = require('../controllers/tenantController');
-const { protect, authorize } = require('../middleware/auth');
-const { resolveTenant } = require('../middleware/tenant');
+import { registerTenant, getMyTenant, updateTenant } from '../controllers/tenantController.js';
+import { protect, authorize } from '../middleware/auth.js';
+import { resolveTenant } from '../middleware/tenant.js';
 
 // Public — company self-registration
 router.post('/register', registerTenant);
@@ -11,4 +11,4 @@ router.post('/register', registerTenant);
 router.get('/me',  protect, resolveTenant, getMyTenant);
 router.put('/me',  protect, resolveTenant, authorize('Admin'), updateTenant);
 
-module.exports = router;
+export default router;

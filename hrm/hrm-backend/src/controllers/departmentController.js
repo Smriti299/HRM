@@ -1,11 +1,11 @@
-const Department = require('../models/Department');
-const Employee = require('../models/Employee');
-const { successResponse } = require('../utils/apiResponse');
+import Department from '../models/Department.js';
+import Employee from '../models/Employee.js';
+import { successResponse } from '../utils/apiResponse.js';
 
 // @desc    Get all departments
 // @route   GET /api/departments
 // @access  Protected
-exports.getAllDepartments = async (req, res, next) => {
+export const getAllDepartments = async (req, res, next) => {
   try {
     const departments = await Department.find({ isActive: true, ...req.tenantFilter })
       .populate('head', 'firstName lastName email')
@@ -21,7 +21,7 @@ exports.getAllDepartments = async (req, res, next) => {
 // @desc    Get single department
 // @route   GET /api/departments/:id
 // @access  Protected
-exports.getDepartment = async (req, res, next) => {
+export const getDepartment = async (req, res, next) => {
   try {
     const department = await Department.findOne({ _id: req.params.id, ...req.tenantFilter })
       .populate('head', 'firstName lastName email designation');
@@ -46,7 +46,7 @@ exports.getDepartment = async (req, res, next) => {
 // @desc    Create department
 // @route   POST /api/departments
 // @access  Admin
-exports.createDepartment = async (req, res, next) => {
+export const createDepartment = async (req, res, next) => {
   try {
     if (req.body.head) {
       const head = await Employee.findOne({ _id: req.body.head, ...req.tenantFilter });
@@ -66,7 +66,7 @@ exports.createDepartment = async (req, res, next) => {
 // @route   PUT /api/departments/:id
 // @access  Admin
 
-exports.updateDepartment = async (req, res, next) => {
+export const updateDepartment = async (req, res, next) => {
   try {
     const updateData = { ...req.body }
 
@@ -99,7 +99,7 @@ exports.updateDepartment = async (req, res, next) => {
 // @desc    Delete department (soft delete)
 // @route   DELETE /api/departments/:id
 // @access  Admin
-exports.deleteDepartment = async (req, res, next) => {
+export const deleteDepartment = async (req, res, next) => {
   try {
     const empCount = await Employee.countDocuments({ department: req.params.id, isActive: true, ...req.tenantFilter });
     if (empCount > 0) {

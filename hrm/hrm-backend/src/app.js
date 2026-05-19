@@ -1,22 +1,22 @@
-require('dotenv').config();
-const express = require('express');
-const helmet = require('helmet');
-const cors = require('cors');
-const morgan = require('morgan');
+import 'dotenv/config';
+import express from 'express';
+import helmet from 'helmet';
+import cors from 'cors';
+import morgan from 'morgan';
 
-const connectDB = require('./config/db');
-const errorHandler = require('./middleware/errorHandler');
+import connectDB from './config/db.js';
+import errorHandler from './middleware/errorHandler.js';
 
 // Route imports
-const authRoutes = require('./routes/authRoutes');
-const employeeRoutes = require('./routes/employeeRoutes');
-const departmentRoutes = require('./routes/departmentRoutes');
-const attendanceRoutes = require('./routes/attendanceRoutes');
-const leaveRoutes = require('./routes/leaveRoutes');
-const payrollRoutes       = require('./routes/payrollRoutes');
-const notificationRoutes  = require('./routes/notificationRoutes');
-const tenantRoutes = require('./routes/tenantRoutes');
-const companyRoutes = require('./routes/companyRoutes');
+import authRoutes from './routes/authRoutes.js';
+import employeeRoutes from './routes/employeeRoutes.js';
+import departmentRoutes from './routes/departmentRoutes.js';
+import attendanceRoutes from './routes/attendanceRoutes.js';
+import leaveRoutes from './routes/leaveRoutes.js';
+import payrollRoutes from './routes/payrollRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import tenantRoutes from './routes/tenantRoutes.js';
+import companyRoutes from './routes/companyRoutes.js';
 // Connect to MongoDB
 connectDB();
 
@@ -69,4 +69,4 @@ app.listen(PORT, () => {
   console.log(`🚀 HRM Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
 });
 
-module.exports = app;
+export default app;

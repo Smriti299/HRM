@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const departmentSchema = new mongoose.Schema(
   {
@@ -51,4 +51,4 @@ departmentSchema.index(
   { unique: true, partialFilterExpression: { tenantId: { $exists: true } } }
 );
 
-module.exports = mongoose.model('Department', departmentSchema);
+export default mongoose.model('Department', departmentSchema);

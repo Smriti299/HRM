@@ -1,15 +1,13 @@
-const express = require('express');
+import express from 'express';
 const router  = express.Router();
-const {
-  getAllEmployees, getEmployee, createEmployee,
+import { getAllEmployees, getEmployee, createEmployee,
   updateEmployee, deleteEmployee, permanentDeleteEmployee,
-  updateMyProfile, updateLeaveBalance,
-} = require('../controllers/employeeController');
-const { protect, authorize } = require('../middleware/auth');
-const validate = require('../middleware/validate');
-const { updateEmployeeValidator, paginationValidator } = require('../validators/employeeValidators');
-const scopeToTenant = require('../middleware/scopeToTenant');
-const { body } = require('express-validator');
+  updateMyProfile, updateLeaveBalance, } from '../controllers/employeeController.js';
+import { protect, authorize } from '../middleware/auth.js';
+import validate from '../middleware/validate.js';
+import { updateEmployeeValidator, paginationValidator } from '../validators/employeeValidators.js';
+import scopeToTenant from '../middleware/scopeToTenant.js';
+import { body } from 'express-validator';
 
 router.use(protect);
 router.use(scopeToTenant); 
@@ -35,4 +33,4 @@ router.put('/:id/leave-balance', authorize('Admin'),
   updateLeaveBalance
 );
 
-module.exports = router;
+export default router;

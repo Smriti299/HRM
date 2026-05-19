@@ -1,15 +1,24 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import { pathToFileURL } from 'url';
+import Company from '../src/models/Company.js';
+import Tenant from '../src/models/Tenant.js';
+import Employee from '../src/models/Employee.js';
+import Department from '../src/models/Department.js';
+import Attendance from '../src/models/Attendance.js';
+import Leave from '../src/models/Leave.js';
+import Payroll from '../src/models/Payroll.js';
+import Notification from '../src/models/Notification.js';
 
 const models = [
-  require('../src/models/Company'),
-  require('../src/models/Tenant'),
-  require('../src/models/Employee'),
-  require('../src/models/Department'),
-  require('../src/models/Attendance'),
-  require('../src/models/Leave'),
-  require('../src/models/Payroll'),
-  require('../src/models/Notification'),
+  Company,
+  Tenant,
+  Employee,
+  Department,
+  Attendance,
+  Leave,
+  Payroll,
+  Notification,
 ];
 
 const syncIndexes = async () => {
@@ -23,7 +32,7 @@ const syncIndexes = async () => {
   await mongoose.disconnect();
 };
 
-if (require.main === module) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   syncIndexes()
     .then(() => {
       console.log('All indexes are aligned with the current schemas.');
@@ -36,4 +45,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = syncIndexes;
+export default syncIndexes;

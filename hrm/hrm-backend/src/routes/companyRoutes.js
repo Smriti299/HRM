@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { body } = require('express-validator');
-const { registerCompany, loginCompany, getCurrentCompany } = require('../controllers/companyController');
-const { protectCompany } = require('../middleware/auth');
-const validate = require('../middleware/validate');
+import { body } from 'express-validator';
+import { registerCompany, loginCompany, getCurrentCompany } from '../controllers/companyController.js';
+import { protectCompany } from '../middleware/auth.js';
+import validate from '../middleware/validate.js';
 
 router.post(
   '/register',
@@ -36,4 +36,4 @@ router.post(
 
 router.get('/me', protectCompany, getCurrentCompany);
 
-module.exports = router;
+export default router;

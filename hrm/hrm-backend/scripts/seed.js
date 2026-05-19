@@ -1,12 +1,12 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const connectDB = require('../src/config/db');
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import connectDB from '../src/config/db.js';
 
-const Employee = require('../src/models/Employee');
-const Department = require('../src/models/Department');
-const Attendance = require('../src/models/Attendance');
-const Leave = require('../src/models/Leave');
+import Employee from '../src/models/Employee.js';
+import Department from '../src/models/Department.js';
+import Attendance from '../src/models/Attendance.js';
+import Leave from '../src/models/Leave.js';
 
 const seed = async () => {
   await connectDB();

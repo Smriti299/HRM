@@ -1,11 +1,11 @@
-const Tenant   = require('../models/Tenant');
-const Employee = require('../models/Employee');
-const bcrypt   = require('bcryptjs');
-const { generateToken } = require('../utils/generateToken');
-const { successResponse } = require('../utils/apiResponse');
+import Tenant from '../models/Tenant.js';
+import Employee from '../models/Employee.js';
+import bcrypt from 'bcryptjs';
+import { generateToken } from '../utils/generateToken.js';
+import { successResponse } from '../utils/apiResponse.js';
 
 // POST /api/tenants/register  — public: company signs up
-exports.registerTenant = async (req, res, next) => {
+export const registerTenant = async (req, res, next) => {
   try {
     const { companyName, slug, adminFirstName, adminLastName, adminEmail, password } = req.body;
 
@@ -45,14 +45,14 @@ exports.registerTenant = async (req, res, next) => {
 };
 
 // GET /api/tenants/me  — get own tenant info (Admin)
-exports.getMyTenant = async (req, res, next) => {
+export const getMyTenant = async (req, res, next) => {
   try {
     return successResponse(res, 200, 'Tenant fetched', req.tenant);
   } catch (err) { next(err); }
 };
 
 // PUT /api/tenants/me  — update tenant settings (Admin)
-exports.updateTenant = async (req, res, next) => {
+export const updateTenant = async (req, res, next) => {
   try {
     const allowed = ['name', 'settings'];
     const updates = {};

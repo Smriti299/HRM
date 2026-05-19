@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
-const Employee = require('../models/Employee');
-const Company = require('../models/Company');
+import jwt from 'jsonwebtoken';
+import Employee from '../models/Employee.js';
+import Company from '../models/Company.js';
 
 const getTokenFromRequest = (req) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
@@ -18,7 +18,7 @@ const buildAuthContext = (decoded) => ({
 });
 
 // Verify JWT token
-exports.protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
   const token = getTokenFromRequest(req);
 
   if (!token) {
@@ -73,7 +73,7 @@ exports.protect = async (req, res, next) => {
 };
 
 // Verify JWT token for company account routes
-exports.protectCompany = async (req, res, next) => {
+export const protectCompany = async (req, res, next) => {
   const token = getTokenFromRequest(req);
 
   if (!token) {
@@ -114,7 +114,7 @@ exports.protectCompany = async (req, res, next) => {
 };
 
 // Role-based access control
-exports.authorize = (...roles) => {
+export const authorize = (...roles) => {
   return (req, res, next) => {
     const role = req.user?.role || req.auth?.role;
 

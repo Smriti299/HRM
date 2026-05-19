@@ -1,6 +1,7 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const Company = require('../src/models/Company');
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import { pathToFileURL } from 'url';
+import Company from '../src/models/Company.js';
 
 const toSlug = (value) =>
   String(value || 'company')
@@ -39,7 +40,7 @@ const backfillCompanySlugs = async () => {
   await mongoose.disconnect();
 };
 
-if (require.main === module) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   backfillCompanySlugs()
     .then(() => process.exit(0))
     .catch(async (err) => {
@@ -49,4 +50,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = backfillCompanySlugs;
+export default backfillCompanySlugs;

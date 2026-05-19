@@ -1,13 +1,13 @@
-const Leave = require('../models/Leave');
-const Employee = require('../models/Employee');
-const Attendance = require('../models/Attendance');
-const { successResponse } = require('../utils/apiResponse');
-const { createNotification } = require('../utils/notify');
+import Leave from '../models/Leave.js';
+import Employee from '../models/Employee.js';
+import Attendance from '../models/Attendance.js';
+import { successResponse } from '../utils/apiResponse.js';
+import { createNotification } from '../utils/notify.js';
 
 // @desc    Apply for leave
 // @route   POST /api/leaves
 // @access  Protected (Employee)
-exports.applyLeave = async (req, res, next) => {
+export const applyLeave = async (req, res, next) => {
   try {
     const { leaveType, startDate, endDate, reason, isHalfDay } = req.body;
 
@@ -72,7 +72,7 @@ exports.applyLeave = async (req, res, next) => {
 // @desc    Get leaves (own for Employee, all for Admin/HR)
 // @route   GET /api/leaves
 // @access  Protected
-exports.getLeaves = async (req, res, next) => {
+export const getLeaves = async (req, res, next) => {
   try {
     const { status, leaveType, employeeId, page = 1, limit = 10 } = req.query;
 
@@ -113,7 +113,7 @@ const filteredLeaves = leaves.filter((l) => l.employee !== null);
 // @desc    Get single leave
 // @route   GET /api/leaves/:id
 // @access  Protected
-exports.getLeave = async (req, res, next) => {
+export const getLeave = async (req, res, next) => {
   try {
     const leave = await Leave.findOne({ _id: req.params.id, ...req.tenantFilter })
       .populate('employee', 'firstName lastName employeeId email department')
@@ -139,7 +139,7 @@ exports.getLeave = async (req, res, next) => {
 // @desc    Approve or reject leave
 // @route   PUT /api/leaves/:id/review
 // @access  Admin, HR
-exports.reviewLeave = async (req, res, next) => {
+export const reviewLeave = async (req, res, next) => {
   try {
     const { status, reviewRemarks } = req.body;
 
@@ -213,7 +213,7 @@ exports.reviewLeave = async (req, res, next) => {
 // @desc    Cancel leave (by employee, only if Pending)
 // @route   PUT /api/leaves/:id/cancel
 // @access  Protected (Employee)
-exports.cancelLeave = async (req, res, next) => {
+export const cancelLeave = async (req, res, next) => {
   try {
     const leave = await Leave.findOne({ _id: req.params.id, employee: req.user._id, ...req.tenantFilter });
 
@@ -240,7 +240,7 @@ exports.cancelLeave = async (req, res, next) => {
 // @desc    Get leave balance for an employee
 // @route   GET /api/leaves/balance/:employeeId
 // @access  Protected
-exports.getLeaveBalance = async (req, res, next) => {
+export const getLeaveBalance = async (req, res, next) => {
   try {
     const targetId =
       req.params.employeeId === 'me' ? req.user._id : req.params.employeeId;

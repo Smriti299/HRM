@@ -1,12 +1,12 @@
-const Employee = require('../models/Employee');
-const Company = require('../models/Company');
-const { generateToken } = require('../utils/generateToken');
-const { successResponse } = require('../utils/apiResponse');
+import Employee from '../models/Employee.js';
+import Company from '../models/Company.js';
+import { generateToken } from '../utils/generateToken.js';
+import { successResponse } from '../utils/apiResponse.js';
 
 // @desc    Register employee (Admin only in production; open for seeding)
 // @route   POST /api/auth/register
 // @access  Admin / HR
-exports.register = async (req, res, next) => {
+export const register = async (req, res, next) => {
   try {
     const tenantFilter = req.tenantFilter || {};
     const {
@@ -45,7 +45,7 @@ exports.register = async (req, res, next) => {
 // @desc    Login
 // @route   POST /api/auth/login
 // @access  Public
-exports.login = async (req, res, next) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password, companyId, companyEmail, slug } = req.body;
 
@@ -120,7 +120,7 @@ exports.login = async (req, res, next) => {
 // @desc    Get current logged-in user
 // @route   GET /api/auth/me
 // @access  Protected
-exports.getMe = async (req, res, next) => {
+export const getMe = async (req, res, next) => {
   try {
     const tenantFilter = req.tenantFilter || {};
     const employee = await Employee.findOne({ _id: req.user._id, ...tenantFilter }).populate('department', 'name');
@@ -133,7 +133,7 @@ exports.getMe = async (req, res, next) => {
 // @desc    Change password
 // @route   PUT /api/auth/change-password
 // @access  Protected
-exports.changePassword = async (req, res, next) => {
+export const changePassword = async (req, res, next) => {
   try {
     const tenantFilter = req.tenantFilter || {};
     const { currentPassword, newPassword } = req.body;

@@ -1,16 +1,14 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { register, login, getMe, changePassword } = require('../controllers/authController');
-const { protect, authorize } = require('../middleware/auth');
-const validate = require('../middleware/validate');
-const scopeToTenant = require('../middleware/scopeToTenant');
-const { resolveTenant } = require('../middleware/tenant');
-const Company = require('../models/Company');
-const {
-  registerValidator,
+import { register, login, getMe, changePassword } from '../controllers/authController.js';
+import { protect, authorize } from '../middleware/auth.js';
+import validate from '../middleware/validate.js';
+import scopeToTenant from '../middleware/scopeToTenant.js';
+import { resolveTenant } from '../middleware/tenant.js';
+import Company from '../models/Company.js';
+import { registerValidator,
   loginValidator,
-  changePasswordValidator,
-} = require('../validators/authValidators');
+  changePasswordValidator, } from '../validators/authValidators.js';
 
 const optionalResolveTenant = async (req, res, next) => {
   const slug = req.body?.slug || req.query?.slug || req.headers['x-tenant-slug'];
@@ -42,4 +40,4 @@ router.get('/me', protect, scopeToTenant, getMe);
 // PUT /api/auth/change-password
 router.put('/change-password', protect, scopeToTenant, changePasswordValidator, validate, changePassword);
 
-module.exports = router;
+export default router;

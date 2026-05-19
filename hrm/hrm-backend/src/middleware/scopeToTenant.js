@@ -31,4 +31,4 @@ const scopeToTenant = (req, res, next) => {
   next();
 };
 
-module.exports = scopeToTenant;
+export default scopeToTenant;

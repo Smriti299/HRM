@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const payrollSchema = new mongoose.Schema(
   {
@@ -99,4 +99,4 @@ payrollSchema.index(
   { unique: true, partialFilterExpression: { tenantId: { $exists: true } } }
 );
 
-module.exports = mongoose.model('Payroll', payrollSchema);
+export default mongoose.model('Payroll', payrollSchema);

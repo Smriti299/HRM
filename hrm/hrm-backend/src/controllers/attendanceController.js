@@ -1,12 +1,12 @@
-const Attendance = require('../models/Attendance');
-const Employee = require('../models/Employee');
-const { successResponse } = require('../utils/apiResponse');
-const { createNotification } = require('../utils/notify');
+import Attendance from '../models/Attendance.js';
+import Employee from '../models/Employee.js';
+import { successResponse } from '../utils/apiResponse.js';
+import { createNotification } from '../utils/notify.js';
 
 const getDateOnly = (d) => { const dt = new Date(d || Date.now()); dt.setHours(0,0,0,0); return dt; };
 
 // POST /api/attendance/check-in
-exports.checkIn = async (req, res, next) => {
+export const checkIn = async (req, res, next) => {
   try {
     const today = getDateOnly();
     const existing = await Attendance.findOne({ employee: req.user._id, date: today, ...req.tenantFilter });
@@ -22,7 +22,7 @@ exports.checkIn = async (req, res, next) => {
 };
 
 // POST /api/attendance/check-out
-exports.checkOut = async (req, res, next) => {
+export const checkOut = async (req, res, next) => {
   try {
     const today  = getDateOnly();
     const record = await Attendance.findOne({ employee: req.user._id, date: today, ...req.tenantFilter });
@@ -38,7 +38,7 @@ exports.checkOut = async (req, res, next) => {
 };
 
 // GET /api/attendance/:employeeId?month=&year=
-exports.getAttendance = async (req, res, next) => {
+export const getAttendance = async (req, res, next) => {
   try {
     const employeeId = req.params.employeeId === 'me' ? req.user._id : req.params.employeeId;
     if (!['Admin', 'Manager', 'HR'].includes(req.user.role) && req.user._id.toString() !== employeeId.toString())
@@ -68,7 +68,7 @@ exports.getAttendance = async (req, res, next) => {
 };
 
 // GET /api/attendance/all?month=&year=  — Admin: all employees
-exports.getAllAttendance = async (req, res, next) => {
+export const getAllAttendance = async (req, res, next) => {
   try {
     const month = parseInt(req.query.month) || new Date().getMonth() + 1;
     const year  = parseInt(req.query.year)  || new Date().getFullYear();
@@ -98,7 +98,7 @@ const filteredRecords = records.filter((r) => r.employee !== null);
 };
 
 // POST /api/attendance/mark  — Admin: create or update any record
-exports.markAttendance = async (req, res, next) => {
+export const markAttendance = async (req, res, next) => {
   try {
     const { employee, date, status, checkIn, checkOut, remarks } = req.body;
     const attendanceDate = getDateOnly(date);
@@ -130,7 +130,7 @@ exports.markAttendance = async (req, res, next) => {
 };
 
 // PUT /api/attendance/:id  — Admin: edit existing record
-exports.editAttendance = async (req, res, next) => {
+export const editAttendance = async (req, res, next) => {
   try {
     const { status, checkIn, checkOut, remarks } = req.body
 
@@ -175,7 +175,7 @@ exports.editAttendance = async (req, res, next) => {
 };
 
 // GET /api/attendance/today/summary  — Admin
-exports.getTodaySummary = async (req, res, next) => {
+export const getTodaySummary = async (req, res, next) => {
   try {
     const today   = getDateOnly();
     const records = await Attendance.find({ date: today, ...req.tenantFilter })

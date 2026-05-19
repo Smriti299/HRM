@@ -1,4 +1,4 @@
-const Notification = require('../models/Notification');
+import Notification from '../models/Notification.js';
 
 /**
  * Create and persist a notification for one recipient.
@@ -26,4 +26,4 @@ const createNotification = async ({ companyId, tenantId, recipient, type, title,
   }
 };
 
-module.exports = { createNotification };
+export { createNotification };

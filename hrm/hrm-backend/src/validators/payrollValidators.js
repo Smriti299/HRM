@@ -1,6 +1,6 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
-exports.generatePayrollValidator = [
+export const generatePayrollValidator = [
   body('employeeId').isMongoId().withMessage('Valid employeeId is required'),
   body('month')
     .isInt({ min: 1, max: 12 })

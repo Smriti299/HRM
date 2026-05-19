@@ -1,19 +1,15 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
-  getAllDepartments,
+import { getAllDepartments,
   getDepartment,
   createDepartment,
   updateDepartment,
-  deleteDepartment,
-} = require('../controllers/departmentController');
-const { protect, authorize } = require('../middleware/auth');
-const validate = require('../middleware/validate');
-const scopeToTenant = require('../middleware/scopeToTenant');
-const {
-  createDepartmentValidator,
-  updateDepartmentValidator,
-} = require('../validators/departmentValidators');
+  deleteDepartment, } from '../controllers/departmentController.js';
+import { protect, authorize } from '../middleware/auth.js';
+import validate from '../middleware/validate.js';
+import scopeToTenant from '../middleware/scopeToTenant.js';
+import { createDepartmentValidator,
+  updateDepartmentValidator, } from '../validators/departmentValidators.js';
 
 router.use(protect);
 router.use(scopeToTenant); 
@@ -23,4 +19,4 @@ router.post('/', authorize('Admin'), createDepartmentValidator, validate, create
 router.put('/:id', authorize('Admin'), updateDepartmentValidator, validate, updateDepartment);
 router.delete('/:id', authorize('Admin'), deleteDepartment);
 
-module.exports = router;
+export default router;

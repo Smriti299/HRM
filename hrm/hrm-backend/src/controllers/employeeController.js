@@ -1,9 +1,14 @@
-const Employee = require('../models/Employee');
-const Department = require('../models/Department');
-const { successResponse } = require('../utils/apiResponse');
+import Employee from '../models/Employee.js';
+import Department from '../models/Department.js';
+import Attendance from '../models/Attendance.js';
+import Leave from '../models/Leave.js';
+import Payroll from '../models/Payroll.js';
+import Notification from '../models/Notification.js';
+import { successResponse } from '../utils/apiResponse.js';
+import { createNotification } from '../utils/notify.js';
 
 // GET /api/employees
-exports.getAllEmployees = async (req, res, next) => {
+export const getAllEmployees = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, search = '', department, role, isActive } = req.query;
     const query = {};
@@ -36,7 +41,7 @@ exports.getAllEmployees = async (req, res, next) => {
 };
 
 // GET /api/employees/:id
-exports.getEmployee = async (req, res, next) => {
+export const getEmployee = async (req, res, next) => {
   try {
     const employee = await Employee.findOne({ _id: req.params.id, ...req.tenantFilter })
       .populate('department', 'name description')
@@ -49,7 +54,7 @@ exports.getEmployee = async (req, res, next) => {
 };
 
 // POST /api/employees
-exports.createEmployee = async (req, res, next) => {
+export const createEmployee = async (req, res, next) => {
   try {
     const { employeeId, email } = req.body;
     if (await Employee.findOne({ email, ...req.tenantFilter }))
@@ -69,7 +74,7 @@ exports.createEmployee = async (req, res, next) => {
 };
 
 // PUT /api/employees/:id
-exports.updateEmployee = async (req, res, next) => {
+export const updateEmployee = async (req, res, next) => {
   try {
     const { employeeId, email } = req.body;
     if (employeeId) {
@@ -96,7 +101,7 @@ exports.updateEmployee = async (req, res, next) => {
 };
 
 // DELETE /api/employees/:id
-exports.deleteEmployee = async (req, res, next) => {
+export const deleteEmployee = async (req, res, next) => {
   try {
     const employee = await Employee.findOneAndUpdate({ _id: req.params.id, ...req.tenantFilter }, { isActive: false }, { new: true });
     if (!employee) return res.status(404).json({ success: false, message: 'Employee not found' });
@@ -105,7 +110,7 @@ exports.deleteEmployee = async (req, res, next) => {
 };
 
 // PUT /api/employees/me/profile
-exports.updateMyProfile = async (req, res, next) => {
+export const updateMyProfile = async (req, res, next) => {
   try {
     const allowed = ['phone', 'address', 'profilePicture'];
     const updates = {};
@@ -118,9 +123,8 @@ exports.updateMyProfile = async (req, res, next) => {
 };
 
 // PUT /api/employees/:id/leave-balance  — Admin only
-exports.updateLeaveBalance = async (req, res, next) => {
+export const updateLeaveBalance = async (req, res, next) => {
   try {
-    const { createNotification } = require('../utils/notify');
     const { annual, sick, casual } = req.body;
     const employee = await Employee.findOne({ _id: req.params.id, ...req.tenantFilter });
     if (!employee) return res.status(404).json({ success: false, message: 'Employee not found' });
@@ -146,13 +150,8 @@ exports.updateLeaveBalance = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 // DELETE /api/employees/:id/permanent  — Admin only: hard delete inactive employee
-exports.permanentDeleteEmployee = async (req, res, next) => {
+export const permanentDeleteEmployee = async (req, res, next) => {
   try {
-    const Attendance   = require('../models/Attendance')
-    const Leave        = require('../models/Leave')
-    const Payroll      = require('../models/Payroll')
-    const Notification = require('../models/Notification')
-
     const employee = await Employee.findOne({ _id: req.params.id, ...req.tenantFilter })
     if (!employee) {
       return res.status(404).json({ success: false, message: 'Employee not found' })

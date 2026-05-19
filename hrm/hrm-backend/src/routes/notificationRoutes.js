@@ -1,14 +1,12 @@
-const express = require('express');
+import express from 'express';
 const router  = express.Router();
-const {
-  getMyNotifications,
+import { getMyNotifications,
   markOneRead,
   markAllRead,
   getUnreadCount,
-  deleteOne,
-} = require('../controllers/notificationController');
-const { protect } = require('../middleware/auth');
-const scopeToTenant = require('../middleware/scopeToTenant');
+  deleteOne, } from '../controllers/notificationController.js';
+import { protect } from '../middleware/auth.js';
+import scopeToTenant from '../middleware/scopeToTenant.js';
 
 router.use(protect);
 router.use(scopeToTenant); 
@@ -18,4 +16,4 @@ router.put('/read-all',      markAllRead);
 router.put('/:id/read',      markOneRead);
 router.delete('/:id',        deleteOne);
 
-module.exports = router;
+export default router;

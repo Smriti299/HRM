@@ -1,12 +1,12 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
-exports.createDepartmentValidator = [
+export const createDepartmentValidator = [
   body('name').trim().notEmpty().withMessage('Department name is required'),
   body('description').optional().trim(),
   body('head').optional().isMongoId().withMessage('Invalid department head ID'),
 ];
 
-exports.updateDepartmentValidator = [
+export const updateDepartmentValidator = [
   body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
   body('description').optional().trim(),
   body('head').optional().isMongoId().withMessage('Invalid department head ID'),

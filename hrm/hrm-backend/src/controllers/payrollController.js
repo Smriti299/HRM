@@ -1,7 +1,7 @@
-const Payroll = require('../models/Payroll');
-const Employee = require('../models/Employee');
-const Attendance = require('../models/Attendance');
-const { successResponse } = require('../utils/apiResponse');
+import Payroll from '../models/Payroll.js';
+import Employee from '../models/Employee.js';
+import Attendance from '../models/Attendance.js';
+import { successResponse } from '../utils/apiResponse.js';
 
 // Helper: count working days in a month (Mon–Sat, excluding Sun)
 const getWorkingDaysInMonth = (year, month) => {
@@ -17,7 +17,7 @@ const getWorkingDaysInMonth = (year, month) => {
 // @desc    Generate payroll for an employee for a given month
 // @route   POST /api/payroll/generate
 // @access  Admin, HR
-exports.generatePayroll = async (req, res, next) => {
+export const generatePayroll = async (req, res, next) => {
   try {
     const { employeeId, month, year } = req.body;
 
@@ -121,7 +121,7 @@ exports.generatePayroll = async (req, res, next) => {
 // @desc    Get payslip for an employee
 // @route   GET /api/payroll/:employeeId?month=&year=
 // @access  Admin, HR, or self
-exports.getPayslip = async (req, res, next) => {
+export const getPayslip = async (req, res, next) => {
   try {
     const targetId = req.params.employeeId === 'me' ? req.user._id : req.params.employeeId;
 
@@ -152,7 +152,7 @@ exports.getPayslip = async (req, res, next) => {
 // @desc    Get all payrolls (with filters)
 // @route   GET /api/payroll
 // @access  Admin, HR
-exports.getAllPayrolls = async (req, res, next) => {
+export const getAllPayrolls = async (req, res, next) => {
   try {
     const { month, year, status, employeeId, page = 1, limit = 10 } = req.query;
     const query = {};
@@ -187,7 +187,7 @@ const filteredPayrolls = payrolls.filter((p) => p.employee !== null);
 // @desc    Mark payroll as paid
 // @route   PUT /api/payroll/:id/mark-paid
 // @access  Admin
-exports.markAsPaid = async (req, res, next) => {
+export const markAsPaid = async (req, res, next) => {
   try {
     const payroll = await Payroll.findOne({ _id: req.params.id, ...req.tenantFilter });
 
@@ -212,7 +212,7 @@ exports.markAsPaid = async (req, res, next) => {
 // @desc    Get payroll summary for a month (all employees)
 // @route   GET /api/payroll/summary?month=&year=
 // @access  Admin, HR
-exports.getPayrollSummary = async (req, res, next) => {
+export const getPayrollSummary = async (req, res, next) => {
   try {
     const month = parseInt(req.query.month) || new Date().getMonth() + 1;
     const year = parseInt(req.query.year) || new Date().getFullYear();
