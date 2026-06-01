@@ -6,7 +6,7 @@
 
 /* ── Employee Grid ── */
 .employee-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(275px,1fr)); gap:18px; }
-.employee-card { background:var(--bg-card); border-radius:var(--radius-lg); border:1px solid var(--border); overflow:hidden; transition:all var(--transition); }
+.employee-card { background:var(--bg-card); border-radius:var(--radius-lg); border:1px solid var(--border); overflow:hidden; transition:box-shadow var(--transition), transform var(--transition); }
 .employee-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
 .employee-card-header { background:linear-gradient(135deg,var(--primary) 0%,var(--surface) 100%); padding:18px; display:flex; align-items:center; gap:13px; }
 .employee-card-avatar { width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:800; font-size:1.05rem; color:#fff; border:3px solid rgba(255,255,255,.18); flex-shrink:0; }
@@ -43,9 +43,9 @@
 }
 .checkin-date { font-size:.85rem; color:rgba(255,255,255,.55); margin-top:5px; }
 .checkin-actions { display:flex; gap:11px; flex-wrap:wrap; }
-.btn-checkin  { background:var(--success); color:#fff; padding:11px 22px; border-radius:var(--radius-sm); border:none; font-size:.88rem; font-weight:600; font-family:var(--font-body); cursor:pointer; transition:all var(--transition); display:flex; align-items:center; gap:7px; }
+.btn-checkin  { background:var(--success); color:#fff; padding:11px 22px; border-radius:var(--radius-sm); border:none; font-size:.88rem; font-weight:600; font-family:var(--font-body); cursor:pointer; transition:background var(--transition), transform var(--transition); display:flex; align-items:center; gap:7px; }
 .btn-checkin:hover { background:#059669; transform:translateY(-1px); }
-.btn-checkout { background:rgba(255,255,255,.13); color:#fff; padding:11px 22px; border-radius:var(--radius-sm); border:1px solid rgba(255,255,255,.18); font-size:.88rem; font-weight:600; font-family:var(--font-body); cursor:pointer; transition:all var(--transition); display:flex; align-items:center; gap:7px; }
+.btn-checkout { background:rgba(255,255,255,.13); color:#fff; padding:11px 22px; border-radius:var(--radius-sm); border:1px solid rgba(255,255,255,.18); font-size:.88rem; font-weight:600; font-family:var(--font-body); cursor:pointer; transition:background var(--transition), border-color var(--transition); display:flex; align-items:center; gap:7px; }
 .btn-checkout:hover { background:rgba(255,255,255,.22); }
 
 /* ── Leave Balances ── */
@@ -81,8 +81,8 @@
 
 /* ── Department Cards ── */
 .dept-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; }
-.dept-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:22px; transition:all var(--transition); }
-.dept-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); border-color:rgba(233,69,96,.28); }
+.dept-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:22px; transition:box-shadow var(--transition), transform var(--transition), border-color var(--transition); }
+.dept-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); border-color:rgba(var(--accent-rgb),.28); }
 .dept-card-icon  { width:46px; height:46px; border-radius:var(--radius-md); background:var(--accent-soft); display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin-bottom:14px; }
 .dept-card-name  { font-family:var(--font-display); font-size:1rem; font-weight:700; color:var(--text-primary); margin-bottom:5px; }
 .dept-card-desc  { font-size:.8rem; color:var(--text-muted); line-height:1.5; margin-bottom:14px; }

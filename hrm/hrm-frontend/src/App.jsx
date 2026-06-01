@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext.jsx'
 import { NotificationProvider } from './context/NotificationContext.jsx'
+import { ThemeProvider } from './context/ThemeContext.jsx'
 
 import Login            from './pages/Login.jsx'
 import Dashboard        from './pages/Dashboard.jsx'
@@ -43,12 +44,14 @@ const AppRoutes = () => (
 
 export default function App() {
   return (
-    <AuthProvider>
-      <NotificationProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </NotificationProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </NotificationProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }

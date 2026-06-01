@@ -3,9 +3,13 @@
 :root {
   --primary: #1a1a2e;
   --primary-light: #16213e;
-  --accent: #e94560;
-  --accent-hover: #c73652;
-  --accent-soft: rgba(233,69,96,0.1);
+  /* Accent: Indigo (SaaS-style) */
+  --accent: #6366F1;               /* indigo-500 */
+  --accent-hover: #4F46E5;         /* indigo-600 */
+  --accent-soft: #EEF2FF;          /* very light indigo for surfaces */
+  --accent-border: #C7D2FE;        /* subtle border tint */
+  --accent-focus: rgba(99,102,241,0.25);
+  --accent-rgb: 99,102,241;
   --surface: #0f3460;
   --surface-light: #1a4a7a;
   --bg: #f0f2f5;
@@ -25,10 +29,17 @@
   --sidebar-width: 260px;
   --header-height: 70px;
   --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px;
+  /* Spacing scale (matches current layout values to avoid visual changes) */
+  --space-xxs: 5px;
+  --space-xs: 10px;
+  --space-sm: 13px;
+  --space-md: 20px;
+  --space-lg: 28px;
+  --space-xl: 32px;
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
   --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
-  --shadow-accent: 0 8px 24px rgba(233,69,96,0.25);
+  --shadow-accent: 0 8px 24px rgba(var(--accent-rgb), 0.25);
   --transition: 0.2s ease;
   --transition-slow: 0.4s cubic-bezier(0.4,0,0.2,1);
 }
@@ -58,3 +69,35 @@ ul, ol { list-style: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 @keyframes slideUp { from { opacity:0; transform:translateY(24px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+/* Global transitions for theme changes */
+body, .card, .modal, .btn, .header, .sidebar, .page-content, .nav-link, .employee-card, .stat-card, table, input, .form-control, .notif-dropdown, .notif-item {
+  transition: color var(--transition), background-color var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] {
+  --primary: #0b1220;
+  --primary-light: #0e1a2b;
+  /* Indigo accents in dark mode (tuned for contrast) */
+  --accent: #818CF8;                /* slightly lighter indigo on dark bg */
+  --accent-hover: #6366F1;          /* use main indigo on hover */
+  --accent-soft: rgba(var(--accent-rgb),0.08);
+  --accent-border: rgba(199,210,254,0.12);
+  --accent-focus: rgba(var(--accent-rgb),0.18);
+  --accent-rgb: 99,102,241;
+  --surface: #0e2038;
+  --surface-light: #12314a;
+  --bg: #0b0f14;
+  --bg-card: #0f1720;
+  --text-primary: #e6eef8;
+  --text-secondary: #b9c6d6;
+  --text-muted: #8899ad;
+  --text-white: #ffffff;
+  --border: rgba(255,255,255,0.06);
+  --border-light: rgba(255,255,255,0.03);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.6);
+  --shadow-md: 0 6px 18px rgba(0,0,0,0.6);
+  --shadow-lg: 0 18px 50px rgba(0,0,0,0.7);
+  --shadow-accent: 0 8px 24px rgba(255,107,129,0.12);
+}

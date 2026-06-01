@@ -1,8 +1,8 @@
 .login-page { min-height:100vh; display:grid; grid-template-columns:1fr 1fr; background:var(--bg-card); }
 
 .login-left { background:var(--primary); display:flex; flex-direction:column; align-items:flex-start; justify-content:center; padding:56px; position:relative; overflow:hidden; }
-.login-left::before { content:''; position:absolute; width:380px; height:380px; background:radial-gradient(circle,rgba(233,69,96,.16) 0%,transparent 65%); top:-100px; right:-100px; pointer-events:none; }
-.login-left::after  { content:''; position:absolute; width:260px; height:260px; background:radial-gradient(circle,rgba(233,69,96,.09) 0%,transparent 65%); bottom:-70px; left:-50px; pointer-events:none; }
+.login-left::before { content:''; position:absolute; width:380px; height:380px; background:radial-gradient(circle,rgba(var(--accent-rgb),.16) 0%,transparent 65%); top:-100px; right:-100px; pointer-events:none; }
+.login-left::after  { content:''; position:absolute; width:260px; height:260px; background:radial-gradient(circle,rgba(var(--accent-rgb),.09) 0%,transparent 65%); bottom:-70px; left:-50px; pointer-events:none; }
 
 .login-brand { display:flex; align-items:center; gap:13px; margin-bottom:52px; position:relative; z-index:1; }
 .login-brand-icon { width:46px; height:46px; background:var(--accent); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; font-size:1.3rem; box-shadow:var(--shadow-accent); }
@@ -28,7 +28,7 @@
 
 .demo-credentials { margin-top:24px; padding:15px; background:var(--bg); border-radius:var(--radius-md); border:1px solid var(--border); }
 .demo-credentials h4 { font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:9px; }
-.demo-cred-item { display:flex; justify-content:space-between; font-size:.79rem; padding:5px 0; color:var(--text-secondary); border-bottom:1px solid var(--border-light); cursor:pointer; transition:color var(--transition); }
+.demo-cred-item { display:flex; justify-content:space-between; font-size:.79rem; padding:5px 0; color:var(--text-secondary); border-bottom:1px solid var(--border-light); cursor:pointer; transition: color var(--transition), background var(--transition); }
 .demo-cred-item:last-child { border-bottom:none; }
 .demo-cred-item:hover { color:var(--accent); }
 .demo-cred-item strong { color:var(--text-primary); }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Sidebar from './Sidebar.jsx'
 import NotificationBell from '../common/NotificationBell.jsx'
+import ThemeToggle from '../common/ThemeToggle.jsx'
 import { formatDate } from '../../utils/helpers.js'
 import { useAuth } from '../../context/AuthContext.jsx'
 
@@ -58,6 +59,7 @@ export default function Layout({ children, title, subtitle }) {
 
           <div className="header-right">
             <span className="header-date">📅 {formatDate(new Date())}</span>
+            <ThemeToggle />
             <NotificationBell />
           </div>
         </header>
