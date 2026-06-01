@@ -2,20 +2,10 @@ import mongoose from 'mongoose';
 
 const leaveSchema = new mongoose.Schema(
   {
-    tenantId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tenant',
-      required: function () {
-        return !this.companyId;
-      },
-      index: true,
-    },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company',
-      required: function () {
-        return !this.tenantId;
-      },
+      required: [true, 'Company reference is required'],
       index: true,
     },
     employee: {
@@ -74,7 +64,6 @@ const leaveSchema = new mongoose.Schema(
 );
 
 leaveSchema.index({ companyId: 1, employee: 1 });
-leaveSchema.index({ tenantId: 1, employee: 1 });
 
 // Pre-save: auto-calculate totalDays
 leaveSchema.pre('save', function (next) {

@@ -6,11 +6,11 @@ import { getAllEmployees, getEmployee, createEmployee,
 import { protect, authorize } from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
 import { updateEmployeeValidator, paginationValidator } from '../validators/employeeValidators.js';
-import scopeToTenant from '../middleware/scopeToTenant.js';
+import scopeToCompany from '../middleware/scopeToCompany.js';
 import { body } from 'express-validator';
 
 router.use(protect);
-router.use(scopeToTenant); 
+router.use(scopeToCompany); 
 // Self
 router.put('/me/profile', updateMyProfile);
 
@@ -34,3 +34,5 @@ router.put('/:id/leave-balance', authorize('Admin'),
 );
 
 export default router;
+
+

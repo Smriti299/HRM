@@ -15,7 +15,6 @@ import attendanceRoutes from './routes/attendanceRoutes.js';
 import leaveRoutes from './routes/leaveRoutes.js';
 import payrollRoutes from './routes/payrollRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
-import tenantRoutes from './routes/tenantRoutes.js';
 import companyRoutes from './routes/companyRoutes.js';
 // Connect to MongoDB
 connectDB();
@@ -47,7 +46,6 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/companies', companyRoutes);
-app.use('/api/tenants', tenantRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/attendance', attendanceRoutes);

@@ -8,13 +8,13 @@ import { successResponse } from '../utils/apiResponse.js';
 // @access  Admin / HR
 export const register = async (req, res, next) => {
   try {
-    const tenantFilter = req.tenantFilter || {};
+    const companyFilter = req.companyFilter || {};
     const {
       firstName, lastName, email, password, phone,
       department, role, designation, joiningDate, salary,
     } = req.body;
 
-    const existing = await Employee.findOne({ email, ...tenantFilter });
+    const existing = await Employee.findOne({ email, ...companyFilter });
     if (existing) {
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
@@ -70,8 +70,6 @@ export const login = async (req, res, next) => {
         return res.status(404).json({ success: false, message: `Company "${slug}" not found` });
       }
       scopeFilter = { companyId: company._id };
-    } else if (req.tenant) {
-      scopeFilter = { tenantId: req.tenant._id };
     } else {
       return res.status(400).json({ success: false, message: 'Company is required to sign in' });
     }
@@ -97,7 +95,6 @@ export const login = async (req, res, next) => {
         email: employee.email,
         role: employee.role,
         companyId: employee.companyId,
-        tenantId: employee.tenantId,
         department: employee.department,
       },
       company: company ? {
@@ -105,11 +102,6 @@ export const login = async (req, res, next) => {
         name: company.name,
         email: company.email,
         slug: company.slug,
-      } : undefined,
-      tenant: req.tenant ? {
-        id: req.tenant._id,
-        name: req.tenant.name,
-        slug: req.tenant.slug,
       } : undefined,
     });
   } catch (err) {
@@ -122,8 +114,8 @@ export const login = async (req, res, next) => {
 // @access  Protected
 export const getMe = async (req, res, next) => {
   try {
-    const tenantFilter = req.tenantFilter || {};
-    const employee = await Employee.findOne({ _id: req.user._id, ...tenantFilter }).populate('department', 'name');
+    const companyFilter = req.companyFilter || {};
+    const employee = await Employee.findOne({ _id: req.user._id, ...companyFilter }).populate('department', 'name');
     return successResponse(res, 200, 'Current user fetched', employee);
   } catch (err) {
     next(err);
@@ -135,10 +127,10 @@ export const getMe = async (req, res, next) => {
 // @access  Protected
 export const changePassword = async (req, res, next) => {
   try {
-    const tenantFilter = req.tenantFilter || {};
+    const companyFilter = req.companyFilter || {};
     const { currentPassword, newPassword } = req.body;
 
-    const employee = await Employee.findOne({ _id: req.user._id, ...tenantFilter }).select('+password');
+    const employee = await Employee.findOne({ _id: req.user._id, ...companyFilter }).select('+password');
     const isMatch = await employee.comparePassword(currentPassword);
     if (!isMatch) {
       return res.status(400).json({ success: false, message: 'Current password is incorrect' });

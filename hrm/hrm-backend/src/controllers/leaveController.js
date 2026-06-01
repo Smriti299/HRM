@@ -25,7 +25,7 @@ export const applyLeave = async (req, res, next) => {
       $or: [
         { startDate: { $lte: end }, endDate: { $gte: start } },
       ],
-      ...req.tenantFilter,
+      ...req.companyFilter,
     });
 
     if (overlap) {
@@ -41,7 +41,7 @@ export const applyLeave = async (req, res, next) => {
       : Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
 
     // Check leave balance
-    const employee = await Employee.findOne({ _id: req.user._id, ...req.tenantFilter });
+    const employee = await Employee.findOne({ _id: req.user._id, ...req.companyFilter });
     const balanceKey = leaveType.toLowerCase();
 
     if (leaveType !== 'Unpaid' && employee.leaveBalance[balanceKey] !== undefined) {
@@ -87,7 +87,7 @@ export const getLeaves = async (req, res, next) => {
     if (status) query.status = status;
     if (leaveType) query.leaveType = leaveType;
 
-    const scopedQuery = { ...query, ...req.tenantFilter };
+    const scopedQuery = { ...query, ...req.companyFilter };
     const total = await Leave.countDocuments(scopedQuery);
     const leaves = await Leave.find(scopedQuery)
   .populate('employee', 'firstName lastName employeeId department')
@@ -115,7 +115,7 @@ const filteredLeaves = leaves.filter((l) => l.employee !== null);
 // @access  Protected
 export const getLeave = async (req, res, next) => {
   try {
-    const leave = await Leave.findOne({ _id: req.params.id, ...req.tenantFilter })
+    const leave = await Leave.findOne({ _id: req.params.id, ...req.companyFilter })
       .populate('employee', 'firstName lastName employeeId email department')
       .populate('reviewedBy', 'firstName lastName');
 
@@ -147,7 +147,7 @@ export const reviewLeave = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Status must be Approved or Rejected' });
     }
 
-    const leave = await Leave.findOne({ _id: req.params.id, ...req.tenantFilter });
+    const leave = await Leave.findOne({ _id: req.params.id, ...req.companyFilter });
     if (!leave) {
       return res.status(404).json({ success: false, message: 'Leave not found' });
     }
@@ -167,7 +167,7 @@ export const reviewLeave = async (req, res, next) => {
 
     if (status === 'Approved') {
       // Deduct leave balance
-      const employee = await Employee.findOne({ _id: leave.employee, ...req.tenantFilter });
+      const employee = await Employee.findOne({ _id: leave.employee, ...req.companyFilter });
       const balanceKey = leave.leaveType.toLowerCase();
 
       if (leave.leaveType !== 'Unpaid' && employee.leaveBalance[balanceKey] !== undefined) {
@@ -185,7 +185,7 @@ export const reviewLeave = async (req, res, next) => {
         const dateOnly = new Date(current);
         dateOnly.setHours(0, 0, 0, 0);
         await Attendance.findOneAndUpdate(
-          { employee: leave.employee, date: dateOnly, ...req.tenantFilter },
+          { employee: leave.employee, date: dateOnly, ...req.companyFilter },
           { ...req.scopeFields, employee: leave.employee, date: dateOnly, status: 'On-Leave', markedBy: req.user._id },
           { upsert: true, new: true, setDefaultsOnInsert: true }
         );
@@ -215,7 +215,7 @@ export const reviewLeave = async (req, res, next) => {
 // @access  Protected (Employee)
 export const cancelLeave = async (req, res, next) => {
   try {
-    const leave = await Leave.findOne({ _id: req.params.id, employee: req.user._id, ...req.tenantFilter });
+    const leave = await Leave.findOne({ _id: req.params.id, employee: req.user._id, ...req.companyFilter });
 
     if (!leave) {
       return res.status(404).json({ success: false, message: 'Leave not found' });
@@ -249,7 +249,7 @@ export const getLeaveBalance = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Access denied' });
     }
 
-    const employee = await Employee.findOne({ _id: targetId, ...req.tenantFilter }).select('firstName lastName employeeId leaveBalance');
+    const employee = await Employee.findOne({ _id: targetId, ...req.companyFilter }).select('firstName lastName employeeId leaveBalance');
     if (!employee) {
       return res.status(404).json({ success: false, message: 'Employee not found' });
     }

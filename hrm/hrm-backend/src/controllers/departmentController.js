@@ -7,7 +7,7 @@ import { successResponse } from '../utils/apiResponse.js';
 // @access  Protected
 export const getAllDepartments = async (req, res, next) => {
   try {
-    const departments = await Department.find({ isActive: true, ...req.tenantFilter })
+    const departments = await Department.find({ isActive: true, ...req.companyFilter })
       .populate('head', 'firstName lastName email')
       .select('-__v')
       .sort({ name: 1 });
@@ -23,7 +23,7 @@ export const getAllDepartments = async (req, res, next) => {
 // @access  Protected
 export const getDepartment = async (req, res, next) => {
   try {
-    const department = await Department.findOne({ _id: req.params.id, ...req.tenantFilter })
+    const department = await Department.findOne({ _id: req.params.id, ...req.companyFilter })
       .populate('head', 'firstName lastName email designation');
 
     if (!department) {
@@ -34,7 +34,7 @@ export const getDepartment = async (req, res, next) => {
     const employeeCount = await Employee.countDocuments({
       department: req.params.id,
       isActive: true,
-      ...req.tenantFilter,
+      ...req.companyFilter,
     });
 
     return successResponse(res, 200, 'Department fetched', { ...department.toJSON(), employeeCount });
@@ -49,7 +49,7 @@ export const getDepartment = async (req, res, next) => {
 export const createDepartment = async (req, res, next) => {
   try {
     if (req.body.head) {
-      const head = await Employee.findOne({ _id: req.body.head, ...req.tenantFilter });
+      const head = await Employee.findOne({ _id: req.body.head, ...req.companyFilter });
       if (!head) {
         return res.status(400).json({ success: false, message: 'Department head does not belong to this company' });
       }
@@ -76,14 +76,14 @@ export const updateDepartment = async (req, res, next) => {
     }
 
     if (updateData.head) {
-      const head = await Employee.findOne({ _id: updateData.head, ...req.tenantFilter })
+      const head = await Employee.findOne({ _id: updateData.head, ...req.companyFilter })
       if (!head) {
         return res.status(400).json({ success: false, message: 'Department head does not belong to this company' })
       }
     }
 
     const department = await Department.findOneAndUpdate(
-      { _id: req.params.id, ...req.tenantFilter },
+      { _id: req.params.id, ...req.companyFilter },
       updateData,
       { new: true, runValidators: true }
     )
@@ -101,7 +101,7 @@ export const updateDepartment = async (req, res, next) => {
 // @access  Admin
 export const deleteDepartment = async (req, res, next) => {
   try {
-    const empCount = await Employee.countDocuments({ department: req.params.id, isActive: true, ...req.tenantFilter });
+    const empCount = await Employee.countDocuments({ department: req.params.id, isActive: true, ...req.companyFilter });
     if (empCount > 0) {
       return res.status(400).json({
         success: false,
@@ -110,7 +110,7 @@ export const deleteDepartment = async (req, res, next) => {
     }
 
     const department = await Department.findOneAndUpdate(
-      { _id: req.params.id, ...req.tenantFilter },
+      { _id: req.params.id, ...req.companyFilter },
       { isActive: false },
       { new: true }
     );

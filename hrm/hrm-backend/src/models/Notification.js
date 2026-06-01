@@ -2,20 +2,10 @@ import mongoose from 'mongoose';
 
 const notificationSchema = new mongoose.Schema(
   {
-    tenantId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tenant',
-      required: function () {
-        return !this.companyId;
-      },
-      index: true,
-    },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company',
-      required: function () {
-        return !this.tenantId;
-      },
+      required: [true, 'Company reference is required'],
       index: true,
     },
     recipient: {
@@ -58,6 +48,5 @@ const notificationSchema = new mongoose.Schema(
 );
 
 notificationSchema.index({ companyId: 1, recipient: 1, isRead: 1, createdAt: -1 });
-notificationSchema.index({ tenantId: 1, recipient: 1, isRead: 1, createdAt: -1 });
 
 export default mongoose.model('Notification', notificationSchema);

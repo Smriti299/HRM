@@ -8,7 +8,7 @@ export const getMyNotifications = async (req, res, next) => {
     const query = { recipient: req.user._id };
     if (unreadOnly === 'true') query.isRead = false;
 
-    const scopedQuery = { ...query, ...req.tenantFilter };
+    const scopedQuery = { ...query, ...req.companyFilter };
     const total = await Notification.countDocuments(scopedQuery);
     const notifications = await Notification.find(scopedQuery)
       .sort({ createdAt: -1 })
@@ -16,7 +16,7 @@ export const getMyNotifications = async (req, res, next) => {
       .limit(Number(limit))
       .populate('triggeredBy', 'firstName lastName role');
 
-    const unreadCount = await Notification.countDocuments({ recipient: req.user._id, isRead: false, ...req.tenantFilter });
+    const unreadCount = await Notification.countDocuments({ recipient: req.user._id, isRead: false, ...req.companyFilter });
 
     return successResponse(res, 200, 'Notifications fetched', notifications, {
       total, unreadCount, page: Number(page), totalPages: Math.ceil(total / limit),
@@ -28,7 +28,7 @@ export const getMyNotifications = async (req, res, next) => {
 export const markOneRead = async (req, res, next) => {
   try {
     await Notification.findOneAndUpdate(
-      { _id: req.params.id, recipient: req.user._id, ...req.tenantFilter },
+      { _id: req.params.id, recipient: req.user._id, ...req.companyFilter },
       { isRead: true }
     );
     return successResponse(res, 200, 'Marked as read');
@@ -38,7 +38,7 @@ export const markOneRead = async (req, res, next) => {
 // PUT /api/notifications/read-all
 export const markAllRead = async (req, res, next) => {
   try {
-    await Notification.updateMany({ recipient: req.user._id, isRead: false, ...req.tenantFilter }, { isRead: true });
+    await Notification.updateMany({ recipient: req.user._id, isRead: false, ...req.companyFilter }, { isRead: true });
     return successResponse(res, 200, 'All notifications marked as read');
   } catch (err) { next(err); }
 };
@@ -46,7 +46,7 @@ export const markAllRead = async (req, res, next) => {
 // GET /api/notifications/unread-count
 export const getUnreadCount = async (req, res, next) => {
   try {
-    const count = await Notification.countDocuments({ recipient: req.user._id, isRead: false, ...req.tenantFilter });
+    const count = await Notification.countDocuments({ recipient: req.user._id, isRead: false, ...req.companyFilter });
     return successResponse(res, 200, 'Unread count', { count });
   } catch (err) { next(err); }
 };
@@ -54,7 +54,7 @@ export const getUnreadCount = async (req, res, next) => {
 // DELETE /api/notifications/:id
 export const deleteOne = async (req, res, next) => {
   try {
-    await Notification.findOneAndDelete({ _id: req.params.id, recipient: req.user._id, ...req.tenantFilter });
+    await Notification.findOneAndDelete({ _id: req.params.id, recipient: req.user._id, ...req.companyFilter });
     return successResponse(res, 200, 'Notification deleted');
   } catch (err) { next(err); }
 };

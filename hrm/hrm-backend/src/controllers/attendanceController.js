@@ -9,7 +9,7 @@ const getDateOnly = (d) => { const dt = new Date(d || Date.now()); dt.setHours(0
 export const checkIn = async (req, res, next) => {
   try {
     const today = getDateOnly();
-    const existing = await Attendance.findOne({ employee: req.user._id, date: today, ...req.tenantFilter });
+    const existing = await Attendance.findOne({ employee: req.user._id, date: today, ...req.companyFilter });
     if (existing && existing.checkIn)
       return res.status(400).json({ success: false, message: 'Already checked in today' });
 
@@ -25,7 +25,7 @@ export const checkIn = async (req, res, next) => {
 export const checkOut = async (req, res, next) => {
   try {
     const today  = getDateOnly();
-    const record = await Attendance.findOne({ employee: req.user._id, date: today, ...req.tenantFilter });
+    const record = await Attendance.findOne({ employee: req.user._id, date: today, ...req.companyFilter });
     if (!record || !record.checkIn)
       return res.status(400).json({ success: false, message: 'No check-in found for today' });
     if (record.checkOut)
@@ -49,7 +49,7 @@ export const getAttendance = async (req, res, next) => {
     const start = new Date(year, month - 1, 1);
     const end   = new Date(year, month, 0, 23, 59, 59);
 
-    const records = await Attendance.find({ employee: employeeId, date: { $gte: start, $lte: end }, ...req.tenantFilter })
+    const records = await Attendance.find({ employee: employeeId, date: { $gte: start, $lte: end }, ...req.companyFilter })
       .populate('employee', 'firstName lastName employeeId')
       .sort({ date: 1 });
 
@@ -80,7 +80,7 @@ export const getAllAttendance = async (req, res, next) => {
     if (employeeId) query.employee = employeeId;
     if (status)     query.status   = status;
 
-    const scopedQuery = { ...query, ...req.tenantFilter };
+    const scopedQuery = { ...query, ...req.companyFilter };
     const total   = await Attendance.countDocuments(scopedQuery);
     const records = await Attendance.find(scopedQuery)
   .populate('employee', 'firstName lastName employeeId department')
@@ -103,13 +103,13 @@ export const markAttendance = async (req, res, next) => {
     const { employee, date, status, checkIn, checkOut, remarks } = req.body;
     const attendanceDate = getDateOnly(date);
 
-    const targetEmployee = await Employee.findOne({ _id: employee, ...req.tenantFilter });
+    const targetEmployee = await Employee.findOne({ _id: employee, ...req.companyFilter });
     if (!targetEmployee) {
       return res.status(404).json({ success: false, message: 'Employee not found in this company' });
     }
 
     const record = await Attendance.findOneAndUpdate(
-      { employee, date: attendanceDate, ...req.tenantFilter },
+      { employee, date: attendanceDate, ...req.companyFilter },
       { ...req.scopeFields, employee, date: attendanceDate, status, checkIn, checkOut, remarks, markedBy: req.user._id },
       { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
     );
@@ -134,7 +134,7 @@ export const editAttendance = async (req, res, next) => {
   try {
     const { status, checkIn, checkOut, remarks } = req.body
 
-    const existing = await Attendance.findOne({ _id: req.params.id, ...req.tenantFilter })
+    const existing = await Attendance.findOne({ _id: req.params.id, ...req.companyFilter })
     if (!existing) return res.status(404).json({ success: false, message: 'Record not found' })
 
     const prevStatus = existing.status
@@ -155,7 +155,7 @@ export const editAttendance = async (req, res, next) => {
 
     // Use findByIdAndUpdate to bypass pre-save hook (so status is never overridden)
     const record = await Attendance.findOneAndUpdate(
-      { _id: req.params.id, ...req.tenantFilter },
+      { _id: req.params.id, ...req.companyFilter },
       { $set: update },
       { new: true, runValidators: false }
     ).populate('employee', 'firstName lastName employeeId')
@@ -178,7 +178,7 @@ export const editAttendance = async (req, res, next) => {
 export const getTodaySummary = async (req, res, next) => {
   try {
     const today   = getDateOnly();
-    const records = await Attendance.find({ date: today, ...req.tenantFilter })
+    const records = await Attendance.find({ date: today, ...req.companyFilter })
       .populate('employee', 'firstName lastName employeeId department');
     const summary = {
       date:        today,

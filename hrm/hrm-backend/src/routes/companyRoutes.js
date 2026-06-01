@@ -37,3 +37,5 @@ router.post(
 router.get('/me', protectCompany, getCurrentCompany);
 
 export default router;
+
+

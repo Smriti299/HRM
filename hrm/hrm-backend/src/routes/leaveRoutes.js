@@ -8,12 +8,12 @@ import { applyLeave,
   getLeaveBalance, } from '../controllers/leaveController.js';
 import { protect, authorize } from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
-import scopeToTenant from '../middleware/scopeToTenant.js';
+import scopeToCompany from '../middleware/scopeToCompany.js';
 import { applyLeaveValidator,
   reviewLeaveValidator, } from '../validators/leaveValidators.js';
 
 router.use(protect);
-router.use(scopeToTenant); 
+router.use(scopeToCompany); 
 router.post('/', applyLeaveValidator, validate, applyLeave);
 router.get('/', getLeaves);
 router.get('/balance/:employeeId', getLeaveBalance);   // 'me' or a real ID
@@ -22,3 +22,5 @@ router.put('/:id/review', authorize('Admin', 'Manager', 'HR'), reviewLeaveValida
 router.put('/:id/cancel', cancelLeave);
 
 export default router;
+
+

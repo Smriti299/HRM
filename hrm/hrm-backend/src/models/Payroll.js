@@ -2,20 +2,10 @@ import mongoose from 'mongoose';
 
 const payrollSchema = new mongoose.Schema(
   {
-    tenantId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tenant',
-      required: function () {
-        return !this.companyId;
-      },
-      index: true,
-    },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company',
-      required: function () {
-        return !this.tenantId;
-      },
+      required: [true, 'Company reference is required'],
       index: true,
     },
     employee: {
@@ -91,12 +81,6 @@ const payrollSchema = new mongoose.Schema(
 payrollSchema.index(
   { companyId: 1, employee: 1, month: 1, year: 1 },
   { unique: true, partialFilterExpression: { companyId: { $exists: true } } }
-);
-
-// Legacy tenant index retained until tenantId is fully migrated to companyId.
-payrollSchema.index(
-  { tenantId: 1, employee: 1, month: 1, year: 1 },
-  { unique: true, partialFilterExpression: { tenantId: { $exists: true } } }
 );
 
 export default mongoose.model('Payroll', payrollSchema);

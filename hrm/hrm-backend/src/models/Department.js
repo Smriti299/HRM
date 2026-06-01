@@ -2,20 +2,10 @@ import mongoose from 'mongoose';
 
 const departmentSchema = new mongoose.Schema(
   {
-    tenantId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tenant',
-      required: function () {
-        return !this.companyId;
-      },
-      index: true,
-    },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company',
-      required: function () {
-        return !this.tenantId;
-      },
+      required: [true, 'Company reference is required'],
       index: true,
     },
     name: {
@@ -45,10 +35,6 @@ const departmentSchema = new mongoose.Schema(
 departmentSchema.index(
   { companyId: 1, name: 1 },
   { unique: true, partialFilterExpression: { companyId: { $exists: true } } }
-);
-departmentSchema.index(
-  { tenantId: 1, name: 1 },
-  { unique: true, partialFilterExpression: { tenantId: { $exists: true } } }
 );
 
 export default mongoose.model('Department', departmentSchema);

@@ -2,20 +2,10 @@ import mongoose from 'mongoose';
 
 const attendanceSchema = new mongoose.Schema(
   {
-    tenantId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tenant',
-      required: function () {
-        return !this.companyId;
-      },
-      index: true,
-    },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company',
-      required: function () {
-        return !this.tenantId;
-      },
+      required: [true, 'Company reference is required'],
       index: true,
     },
     employee: {
@@ -63,12 +53,6 @@ const attendanceSchema = new mongoose.Schema(
 attendanceSchema.index(
   { companyId: 1, employee: 1, date: 1 },
   { unique: true, partialFilterExpression: { companyId: { $exists: true } } }
-);
-
-// Legacy tenant index retained until tenantId is fully migrated to companyId.
-attendanceSchema.index(
-  { tenantId: 1, employee: 1, date: 1 },
-  { unique: true, partialFilterExpression: { tenantId: { $exists: true } } }
 );
 
 // Pre-save: calculate working hours only — do NOT override manually-set status

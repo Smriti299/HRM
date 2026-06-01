@@ -21,13 +21,13 @@ export const generatePayroll = async (req, res, next) => {
   try {
     const { employeeId, month, year } = req.body;
 
-    const employee = await Employee.findOne({ _id: employeeId, ...req.tenantFilter });
+    const employee = await Employee.findOne({ _id: employeeId, ...req.companyFilter });
     if (!employee) {
       return res.status(404).json({ success: false, message: 'Employee not found' });
     }
 
     // Check if payroll already exists
-    const existing = await Payroll.findOne({ employee: employeeId, month, year, ...req.tenantFilter });
+    const existing = await Payroll.findOne({ employee: employeeId, month, year, ...req.companyFilter });
     if (existing && existing.status !== 'Draft') {
       return res.status(400).json({
         success: false,
@@ -42,7 +42,7 @@ export const generatePayroll = async (req, res, next) => {
     const attendanceRecords = await Attendance.find({
       employee: employeeId,
       date: { $gte: startDate, $lte: endDate },
-      ...req.tenantFilter,
+      ...req.companyFilter,
     });
 
     const workingDaysInMonth = getWorkingDaysInMonth(year, month);
@@ -132,7 +132,7 @@ export const getPayslip = async (req, res, next) => {
     const month = parseInt(req.query.month) || new Date().getMonth() + 1;
     const year = parseInt(req.query.year) || new Date().getFullYear();
 
-    const payroll = await Payroll.findOne({ employee: targetId, month, year, ...req.tenantFilter })
+    const payroll = await Payroll.findOne({ employee: targetId, month, year, ...req.companyFilter })
       .populate('employee', 'firstName lastName employeeId email designation department joiningDate')
       .populate('generatedBy', 'firstName lastName');
 
@@ -162,7 +162,7 @@ export const getAllPayrolls = async (req, res, next) => {
     if (status) query.status = status;
     if (employeeId) query.employee = employeeId;
 
-    const scopedQuery = { ...query, ...req.tenantFilter };
+    const scopedQuery = { ...query, ...req.companyFilter };
     const total = await Payroll.countDocuments(scopedQuery);
     const payrolls = await Payroll.find(scopedQuery)
   .populate('employee', 'firstName lastName employeeId department')
@@ -189,7 +189,7 @@ const filteredPayrolls = payrolls.filter((p) => p.employee !== null);
 // @access  Admin
 export const markAsPaid = async (req, res, next) => {
   try {
-    const payroll = await Payroll.findOne({ _id: req.params.id, ...req.tenantFilter });
+    const payroll = await Payroll.findOne({ _id: req.params.id, ...req.companyFilter });
 
     if (!payroll) {
       return res.status(404).json({ success: false, message: 'Payroll not found' });
@@ -217,7 +217,7 @@ export const getPayrollSummary = async (req, res, next) => {
     const month = parseInt(req.query.month) || new Date().getMonth() + 1;
     const year = parseInt(req.query.year) || new Date().getFullYear();
 
-    const payrolls = await Payroll.find({ month, year, ...req.tenantFilter });
+    const payrolls = await Payroll.find({ month, year, ...req.companyFilter });
 
     const summary = {
       month,

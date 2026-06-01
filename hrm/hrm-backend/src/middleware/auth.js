@@ -13,7 +13,6 @@ const buildAuthContext = (decoded) => ({
   userId: decoded.userId || decoded.id,
   role: decoded.role,
   companyId: decoded.companyId,
-  tenantId: decoded.tenantId,
   type: decoded.type || 'user',
 });
 
@@ -46,24 +45,14 @@ export const protect = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Token company scope does not match user' });
     }
 
-    if (
-      !authContext.companyId &&
-      authContext.tenantId &&
-      (!employee.tenantId || employee.tenantId.toString() !== authContext.tenantId.toString())
-    ) {
-      return res.status(401).json({ success: false, message: 'Token tenant scope does not match user' });
-    }
-
     req.user = employee;
     req.user.companyId = authContext.companyId || employee.companyId;
-    req.user.tenantId = authContext.tenantId || employee.tenantId;
     req.user.role = authContext.role || employee.role;
     req.auth = {
       ...authContext,
       userId: employee._id,
       role: req.user.role,
       companyId: req.user.companyId,
-      tenantId: req.user.tenantId,
       type: 'user',
     };
     next();

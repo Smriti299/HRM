@@ -6,10 +6,9 @@ const signToken = (payload) => {
   });
 };
 
-const generateToken = (userOrId, legacyTenantId = null) => {
+const generateToken = (userOrId) => {
   const isUserObject = typeof userOrId === 'object' && userOrId !== null;
   const userId = isUserObject ? userOrId._id : userOrId;
-  const tenantId = isUserObject ? userOrId.tenantId : legacyTenantId;
   const companyId = isUserObject ? userOrId.companyId : null;
   const role = isUserObject ? userOrId.role : undefined;
 
@@ -17,7 +16,6 @@ const generateToken = (userOrId, legacyTenantId = null) => {
     userId,
     role,
     companyId,
-    tenantId,
     type: 'user',
     id: userId,
   });

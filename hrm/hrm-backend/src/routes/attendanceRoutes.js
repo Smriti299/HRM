@@ -5,9 +5,9 @@ import { checkIn, checkOut, getAttendance, getAllAttendance,
 import { protect, authorize } from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
 import { markAttendanceValidator } from '../validators/attendanceValidators.js';
-import scopeToTenant from '../middleware/scopeToTenant.js';
+import scopeToCompany from '../middleware/scopeToCompany.js';
 router.use(protect);
-router.use(scopeToTenant); 
+router.use(scopeToCompany); 
 // Employee self-service
 router.post('/check-in',  checkIn);
 router.post('/check-out', checkOut);
@@ -22,3 +22,5 @@ router.put('/:id',           authorize('Admin', 'Manager', 'HR'), editAttendance
 router.get('/:employeeId', getAttendance);
 
 export default router;
+
+

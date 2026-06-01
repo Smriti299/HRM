@@ -3,20 +3,10 @@ import bcrypt from 'bcryptjs';
 
 const employeeSchema = new mongoose.Schema(
   {
-    tenantId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tenant',
-      required: function () {
-        return !this.companyId;
-      },
-      index: true,
-    },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company',
-      required: function () {
-        return !this.tenantId;
-      },
+      required: [true, 'Company reference is required'],
       index: true,
     },
     employeeId: {
@@ -106,8 +96,7 @@ const employeeSchema = new mongoose.Schema(
 // Auto-generate employeeId before saving
 employeeSchema.pre('save', async function (next) {
   if (!this.employeeId) {
-    const scope = this.companyId ? { companyId: this.companyId } : { tenantId: this.tenantId };
-    const count = await mongoose.model('Employee').countDocuments(scope);
+    const count = await mongoose.model('Employee').countDocuments({ companyId: this.companyId });
     this.employeeId = `EMP${String(count + 1).padStart(4, '0')}`;
   }
   if (this.isModified('password')) {
@@ -136,13 +125,4 @@ employeeSchema.index(
   { unique: true, partialFilterExpression: { companyId: { $exists: true } } }
 );
 
-// Legacy tenant indexes retained until tenantId is fully migrated to companyId.
-employeeSchema.index(
-  { tenantId: 1, email: 1 },
-  { unique: true, partialFilterExpression: { tenantId: { $exists: true } } }
-);
-employeeSchema.index(
-  { tenantId: 1, employeeId: 1 },
-  { unique: true, partialFilterExpression: { tenantId: { $exists: true } } }
-);
 export default mongoose.model('Employee', employeeSchema);

@@ -24,7 +24,7 @@ export const getAllEmployees = async (req, res, next) => {
     if (role)       query.role = role;
     if (isActive !== undefined) query.isActive = isActive === 'true';
 
-    const scopedQuery = { ...query, ...req.tenantFilter };
+    const scopedQuery = { ...query, ...req.companyFilter };
     const total     = await Employee.countDocuments(scopedQuery);
     const employees = await Employee.find(scopedQuery)
       .populate('department', 'name')
@@ -43,7 +43,7 @@ export const getAllEmployees = async (req, res, next) => {
 // GET /api/employees/:id
 export const getEmployee = async (req, res, next) => {
   try {
-    const employee = await Employee.findOne({ _id: req.params.id, ...req.tenantFilter })
+    const employee = await Employee.findOne({ _id: req.params.id, ...req.companyFilter })
       .populate('department', 'name description')
       .select('-password -__v');
     if (!employee) return res.status(404).json({ success: false, message: 'Employee not found' });
@@ -57,12 +57,12 @@ export const getEmployee = async (req, res, next) => {
 export const createEmployee = async (req, res, next) => {
   try {
     const { employeeId, email } = req.body;
-    if (await Employee.findOne({ email, ...req.tenantFilter }))
+    if (await Employee.findOne({ email, ...req.companyFilter }))
       return res.status(400).json({ success: false, message: 'Email already registered' });
-    if (employeeId && await Employee.findOne({ employeeId, ...req.tenantFilter }))
+    if (employeeId && await Employee.findOne({ employeeId, ...req.companyFilter }))
       return res.status(400).json({ success: false, message: `Employee ID '${employeeId}' is already in use` });
     if (req.body.department) {
-      const department = await Department.findOne({ _id: req.body.department, ...req.tenantFilter });
+      const department = await Department.findOne({ _id: req.body.department, ...req.companyFilter });
       if (!department) {
         return res.status(400).json({ success: false, message: 'Department does not belong to this company' });
       }
@@ -78,21 +78,21 @@ export const updateEmployee = async (req, res, next) => {
   try {
     const { employeeId, email } = req.body;
     if (employeeId) {
-      const clash = await Employee.findOne({ employeeId, _id: { $ne: req.params.id }, ...req.tenantFilter });
+      const clash = await Employee.findOne({ employeeId, _id: { $ne: req.params.id }, ...req.companyFilter });
       if (clash) return res.status(400).json({ success: false, message: `Employee ID '${employeeId}' is already in use` });
     }
     if (email) {
-      const clash = await Employee.findOne({ email, _id: { $ne: req.params.id }, ...req.tenantFilter });
+      const clash = await Employee.findOne({ email, _id: { $ne: req.params.id }, ...req.companyFilter });
       if (clash) return res.status(400).json({ success: false, message: 'Email already in use' });
     }
     if (req.body.department) {
-      const department = await Department.findOne({ _id: req.body.department, ...req.tenantFilter });
+      const department = await Department.findOne({ _id: req.body.department, ...req.companyFilter });
       if (!department) {
         return res.status(400).json({ success: false, message: 'Department does not belong to this company' });
       }
     }
     delete req.body.password;
-    const employee = await Employee.findOneAndUpdate({ _id: req.params.id, ...req.tenantFilter }, req.body, {
+    const employee = await Employee.findOneAndUpdate({ _id: req.params.id, ...req.companyFilter }, req.body, {
       new: true, runValidators: true,
     }).populate('department', 'name').select('-password -__v');
     if (!employee) return res.status(404).json({ success: false, message: 'Employee not found' });
@@ -103,7 +103,7 @@ export const updateEmployee = async (req, res, next) => {
 // DELETE /api/employees/:id
 export const deleteEmployee = async (req, res, next) => {
   try {
-    const employee = await Employee.findOneAndUpdate({ _id: req.params.id, ...req.tenantFilter }, { isActive: false }, { new: true });
+    const employee = await Employee.findOneAndUpdate({ _id: req.params.id, ...req.companyFilter }, { isActive: false }, { new: true });
     if (!employee) return res.status(404).json({ success: false, message: 'Employee not found' });
     return successResponse(res, 200, 'Employee deactivated');
   } catch (err) { next(err); }
@@ -115,7 +115,7 @@ export const updateMyProfile = async (req, res, next) => {
     const allowed = ['phone', 'address', 'profilePicture'];
     const updates = {};
     allowed.forEach((f) => { if (req.body[f] !== undefined) updates[f] = req.body[f]; });
-    const employee = await Employee.findOneAndUpdate({ _id: req.user._id, ...req.tenantFilter }, updates, {
+    const employee = await Employee.findOneAndUpdate({ _id: req.user._id, ...req.companyFilter }, updates, {
       new: true, runValidators: true,
     }).populate('department', 'name').select('-password');
     return successResponse(res, 200, 'Profile updated', employee);
@@ -126,7 +126,7 @@ export const updateMyProfile = async (req, res, next) => {
 export const updateLeaveBalance = async (req, res, next) => {
   try {
     const { annual, sick, casual } = req.body;
-    const employee = await Employee.findOne({ _id: req.params.id, ...req.tenantFilter });
+    const employee = await Employee.findOne({ _id: req.params.id, ...req.companyFilter });
     if (!employee) return res.status(404).json({ success: false, message: 'Employee not found' });
 
     const changes = [];
@@ -152,7 +152,7 @@ export const updateLeaveBalance = async (req, res, next) => {
 // DELETE /api/employees/:id/permanent  — Admin only: hard delete inactive employee
 export const permanentDeleteEmployee = async (req, res, next) => {
   try {
-    const employee = await Employee.findOne({ _id: req.params.id, ...req.tenantFilter })
+    const employee = await Employee.findOne({ _id: req.params.id, ...req.companyFilter })
     if (!employee) {
       return res.status(404).json({ success: false, message: 'Employee not found' })
     }
@@ -166,13 +166,13 @@ export const permanentDeleteEmployee = async (req, res, next) => {
 
     // Delete all related records
     await Promise.all([
-      Attendance.deleteMany({ employee: req.params.id, ...req.tenantFilter }),
-      Leave.deleteMany({ employee: req.params.id, ...req.tenantFilter }),
-      Payroll.deleteMany({ employee: req.params.id, ...req.tenantFilter }),
-      Notification.deleteMany({ recipient: req.params.id, ...req.tenantFilter }),
+      Attendance.deleteMany({ employee: req.params.id, ...req.companyFilter }),
+      Leave.deleteMany({ employee: req.params.id, ...req.companyFilter }),
+      Payroll.deleteMany({ employee: req.params.id, ...req.companyFilter }),
+      Notification.deleteMany({ recipient: req.params.id, ...req.companyFilter }),
     ])
 
-    await Employee.findOneAndDelete({ _id: req.params.id, ...req.tenantFilter })
+    await Employee.findOneAndDelete({ _id: req.params.id, ...req.companyFilter })
 
     return successResponse(res, 200, 'Employee and all related data permanently deleted')
   } catch (err) { next(err) }
