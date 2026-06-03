@@ -4,6 +4,7 @@ import { Spinner, Badge, EmptyState, Pagination, Modal, Alert } from '../compone
 import { useAuth } from '../context/AuthContext.jsx'
 import api from '../services/api.js'
 import { formatDate, formatCurrency, getMonthName } from '../utils/helpers.js'
+import { saveAs } from 'file-saver'
 import '../styles/pages.css'
 import '../styles/components.css'
 
@@ -24,6 +25,10 @@ export default function Payroll() {
   const [psMonth, setPsMonth]         = useState(new Date().getMonth() + 1)
   const [psYear, setPsYear]           = useState(new Date().getFullYear())
   const [psLoading, setPsLoading]     = useState(false)
+  const [payslipLoading, setPayslipLoading] = useState(false)
+  const [exporting, setExporting]     = useState(false)
+  const [exportError, setExportError] = useState('')
+  const [exportMsg, setExportMsg]     = useState('')
   const [showGenerate, setShowGenerate]   = useState(false)
   const [employees, setEmployees]         = useState([])
   const [genForm, setGenForm]             = useState({ employeeId: '', month: new Date().getMonth() + 1, year: new Date().getFullYear() })
@@ -61,6 +66,41 @@ export default function Payroll() {
   useEffect(() => {
     if (isAdminHR) api.get('/employees?limit=100').then((r) => setEmployees(r.data.data || []))
   }, [isAdminHR])
+
+  const downloadBlob = (blob, filename) => {
+    const file = new Blob([blob], { type: blob.type || 'application/octet-stream' })
+    saveAs(file, filename)
+  }
+
+  const handleExportPayrollExcel = async () => {
+    setExporting(true)
+    setExportMsg('')
+    setExportError('')
+    try {
+      const res = await api.get(`/payroll/export/excel?month=${filterMonth}&year=${filterYear}`, { responseType: 'blob' })
+      downloadBlob(res.data, `payroll-${filterYear}-${filterMonth}.xlsx`)
+      setExportMsg('Payroll Excel export is ready.')
+    } catch (err) {
+      setExportError(err.response?.data?.message || 'Failed to export payroll')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const downloadPayslip = async (payrollId) => {
+    setPayslipLoading(true)
+    setExportError('')
+    setExportMsg('')
+    try {
+      const res = await api.get(`/payroll/${payrollId}/payslip/pdf`, { responseType: 'blob' })
+      downloadBlob(res.data, `payslip-${payrollId}.pdf`)
+      setExportMsg('Payslip PDF is downloading.')
+    } catch (err) {
+      setExportError(err.response?.data?.message || 'Payslip download failed')
+    } finally {
+      setPayslipLoading(false)
+    }
+  }
 
   const handleGenerate = async (e) => {
     e.preventDefault()
@@ -169,7 +209,14 @@ export default function Payroll() {
           <select className="form-control" style={{ width:'auto' }} value={psYear} onChange={(e) => setPsYear(Number(e.target.value))}>
             {YEARS.map((y) => <option key={y}>{y}</option>)}
           </select>
+          <button className="btn btn-secondary" onClick={() => myPayslip && downloadPayslip(myPayslip._id)} disabled={psLoading || !myPayslip}>Download Payslip</button>
         </div>
+        {(exportMsg || exportError) && (
+          <div style={{ marginBottom: 16 }}>
+            {exportMsg && <Alert type="success" message={exportMsg} />}
+            {exportError && <Alert type="error" message={exportError} />}
+          </div>
+        )}
         {psLoading ? <Spinner /> : myPayslip ? <PayslipCard p={myPayslip} /> : (
           <EmptyState icon="💰" title="No payslip found" message={`Payslip for ${getMonthName(psMonth)} ${psYear} has not been generated yet.`} />
         )}
@@ -192,9 +239,17 @@ export default function Payroll() {
           <select className="form-control" style={{ width:'auto' }} value={filterYear} onChange={(e) => { setFilterYear(Number(e.target.value)); setPage(1) }}>
             {YEARS.map((y) => <option key={y}>{y}</option>)}
           </select>
+          <button className="btn btn-secondary" disabled={exporting} onClick={handleExportPayrollExcel}>Export Payroll Excel</button>
           <button className="btn btn-primary" onClick={() => setShowGenerate(true)}>⚙ Generate Payroll</button>
         </div>
       </div>
+
+      {(exportMsg || exportError) && (
+        <div style={{ margin: '0 0 16px' }}>
+          {exportMsg && <Alert type="success" message={exportMsg} />}
+          {exportError && <Alert type="error" message={exportError} />}
+        </div>
+      )}
 
       {loading ? <Spinner /> : payrolls.length === 0 ? (
         <EmptyState icon="💰" title="No payroll records" message="Generate payroll for employees using the button above" />
@@ -222,7 +277,10 @@ export default function Payroll() {
                     <td style={{ color:'var(--danger)' }}>- {formatCurrency(p.totalDeductions)}</td>
                     <td style={{ fontWeight:700 }}>{formatCurrency(p.netSalary)}</td>
                     <td><Badge status={p.status} /></td>
-                    <td>
+                    <td style={{ display:'flex', gap: 6, flexWrap: 'wrap' }}>
+                      <button className="btn btn-secondary btn-sm" onClick={() => downloadPayslip(p._id)} disabled={payslipLoading}>
+                        Download Payslip
+                      </button>
                       {p.status !== 'Paid' && user?.role === 'Admin' && (
                         <button className="btn btn-success btn-sm" onClick={() => handleMarkPaid(p._id)}>
                           Mark Paid

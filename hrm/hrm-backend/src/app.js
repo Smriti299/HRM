@@ -13,6 +13,7 @@ import employeeRoutes from './routes/employeeRoutes.js';
 import departmentRoutes from './routes/departmentRoutes.js';
 import attendanceRoutes from './routes/attendanceRoutes.js';
 import leaveRoutes from './routes/leaveRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 import payrollRoutes from './routes/payrollRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import companyRoutes from './routes/companyRoutes.js';
@@ -50,6 +51,7 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leaves', leaveRoutes);
+app.use('/api/analytics', analyticsRoutes);
 app.use('/api/payroll',        payrollRoutes);
 app.use('/api/notifications',  notificationRoutes);
 

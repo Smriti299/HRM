@@ -6,6 +6,52 @@ import Payroll from '../models/Payroll.js';
 import Notification from '../models/Notification.js';
 import { successResponse } from '../utils/apiResponse.js';
 import { createNotification } from '../utils/notify.js';
+import { formatDateTime, getCompanyName, streamPdf, streamExcel, fitWorksheetColumns } from '../utils/exportHelpers.js';
+
+const buildEmployeePdf = (doc, employees, companyName) => {
+  doc.fontSize(16).font('Helvetica-Bold').text(companyName, { align: 'center' })
+  doc.moveDown(0.25)
+  doc.fontSize(12).font('Helvetica').text('Employee Report', { align: 'center' })
+  doc.moveDown(0.5)
+  doc.fontSize(9).fillColor('gray').text(`Generated: ${formatDateTime()}`, { align: 'center' })
+  doc.moveDown(1)
+
+  const columns = [90, 120, 170, 100, 90, 70, 90, 70]
+  const headers = ['Emp ID', 'Name', 'Email', 'Department', 'Designation', 'Role', 'Joining Date', 'Status']
+  let y = doc.y
+  const margin = doc.page.margins.left
+
+  headers.forEach((header, index) => {
+    doc.font('Helvetica-Bold').fontSize(9).fillColor('black').text(header, margin + columns.slice(0, index).reduce((a,b)=>a+b,0), y, {
+      width: columns[index], align: 'left'
+    })
+  })
+  y += 20
+  doc.moveTo(margin, y - 6).lineTo(doc.page.width - margin, y - 6).stroke('#E2E8F0')
+
+  employees.forEach((emp, idx) => {
+    if (y > doc.page.height - doc.page.margins.bottom - 40) {
+      doc.addPage()
+      y = doc.y
+    }
+    const values = [
+      emp.employeeId || '',
+      `${emp.firstName} ${emp.lastName}`,
+      emp.email || '',
+      emp.department?.name || '',
+      emp.designation || '',
+      emp.role || '',
+      emp.joiningDate ? new Date(emp.joiningDate).toLocaleDateString('en-IN') : '',
+      emp.isActive ? 'Active' : 'Inactive',
+    ]
+    values.forEach((value, index) => {
+      doc.font('Helvetica').fontSize(8).fillColor('black').text(value, margin + columns.slice(0, index).reduce((a,b)=>a+b,0), y, {
+        width: columns[index], align: 'left'
+      })
+    })
+    y += 20
+  })
+}
 
 // GET /api/employees
 export const getAllEmployees = async (req, res, next) => {
@@ -39,6 +85,70 @@ export const getAllEmployees = async (req, res, next) => {
     });
   } catch (err) { next(err); }
 };
+
+const fetchEmployeeExportRows = async (req) => {
+  const { search = '', department, role, isActive } = req.query;
+  const query = {};
+  if (search) {
+    query.$or = [
+      { firstName:  { $regex: search, $options: 'i' } },
+      { lastName:   { $regex: search, $options: 'i' } },
+      { email:      { $regex: search, $options: 'i' } },
+      { employeeId: { $regex: search, $options: 'i' } },
+    ];
+  }
+  if (department) query.department = department;
+  if (role)       query.role = role;
+  if (isActive !== undefined) query.isActive = isActive === 'true';
+
+  return Employee.find({ ...req.companyFilter, ...query })
+    .populate('department', 'name')
+    .select('-password -__v')
+    .sort({ createdAt: -1 });
+}
+
+export const exportEmployeesPdf = async (req, res, next) => {
+  try {
+    const employees = await fetchEmployeeExportRows(req)
+    const companyName = await getCompanyName(req.user.companyId)
+    const fileName = `employees-${new Date().toISOString().slice(0,10)}.pdf`
+    return streamPdf(res, fileName, (doc) => buildEmployeePdf(doc, employees, companyName))
+  } catch (err) { next(err); }
+}
+
+export const exportEmployeesExcel = async (req, res, next) => {
+  try {
+    const employees = await fetchEmployeeExportRows(req)
+    const companyName = await getCompanyName(req.user.companyId)
+    const fileName = `employees-${new Date().toISOString().slice(0,10)}.xlsx`
+    return streamExcel(res, fileName, async (workbook) => {
+      const sheet = workbook.addWorksheet('Employees')
+      sheet.addRow(['Company', companyName])
+      sheet.addRow(['Report generated', formatDateTime()])
+      sheet.addRow([])
+      sheet.addRow(['Employee ID', 'Name', 'Email', 'Department', 'Designation', 'Role', 'Joining Date', 'Status'])
+
+      employees.forEach((emp) => {
+        sheet.addRow([
+          emp.employeeId || '',
+          `${emp.firstName} ${emp.lastName}`,
+          emp.email || '',
+          emp.department?.name || '',
+          emp.designation || '',
+          emp.role || '',
+          emp.joiningDate ? new Date(emp.joiningDate).toLocaleDateString('en-IN') : '',
+          emp.isActive ? 'Active' : 'Inactive',
+        ])
+      })
+
+      fitWorksheetColumns(sheet)
+      sheet.eachRow((row, rowIndex) => {
+        if (rowIndex === 4) row.font = { bold: true }
+        row.alignment = { vertical: 'middle', wrapText: true }
+      })
+    })
+  } catch (err) { next(err); }
+}
 
 // GET /api/employees/:id
 export const getEmployee = async (req, res, next) => {

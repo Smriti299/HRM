@@ -2,7 +2,8 @@ import express from 'express';
 const router  = express.Router();
 import { getAllEmployees, getEmployee, createEmployee,
   updateEmployee, deleteEmployee, permanentDeleteEmployee,
-  updateMyProfile, updateLeaveBalance, } from '../controllers/employeeController.js';
+  updateMyProfile, updateLeaveBalance,
+  exportEmployeesPdf, exportEmployeesExcel } from '../controllers/employeeController.js';
 import { protect, authorize } from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
 import { updateEmployeeValidator, paginationValidator } from '../validators/employeeValidators.js';
@@ -13,6 +14,10 @@ router.use(protect);
 router.use(scopeToCompany); 
 // Self
 router.put('/me/profile', updateMyProfile);
+
+// Export endpoints
+router.get('/export/pdf', authorize('Admin', 'Manager'), exportEmployeesPdf);
+router.get('/export/excel', authorize('Admin', 'Manager'), exportEmployeesExcel);
 
 // Admin only — CRUD
 router.get('/',    authorize('Admin', 'Manager', 'HR'), paginationValidator, validate, getAllEmployees);

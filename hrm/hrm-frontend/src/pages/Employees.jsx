@@ -4,6 +4,7 @@ import { Spinner, Badge, EmptyState, Pagination, Modal, Alert } from '../compone
 import api from '../services/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { formatDate, getInitials, getAvatarColor } from '../utils/helpers.js'
+import { saveAs } from 'file-saver'
 import '../styles/pages.css'
 import '../styles/components.css'
 import { FaUser } from "react-icons/fa";
@@ -45,6 +46,9 @@ export default function Employees() {
   const [total, setTotal]             = useState(0)
   const [viewMode, setViewMode]       = useState('table')
   const [showInactive, setShowInactive] = useState(false)
+  const [exporting, setExporting]     = useState(false)
+  const [exportMsg, setExportMsg]     = useState('')
+  const [exportError, setExportError] = useState('')
  
 
   const [showAdd, setShowAdd]         = useState(false)
@@ -82,6 +86,37 @@ const res = await api.get(`/employees?${p}`)
   }, [page, search, filterRole, filterDept, showInactive])
   useEffect(() => { fetchEmployees() }, [fetchEmployees])
   useEffect(() => { api.get('/departments').then((r) => setDepts(r.data.data || [])) }, [])
+
+  const downloadBlob = (blob, filename) => {
+    const file = new Blob([blob], { type: blob.type || 'application/octet-stream' })
+    saveAs(file, filename)
+  }
+
+  const getExportQuery = () => {
+    const params = new URLSearchParams()
+    if (search) params.set('search', search)
+    if (filterRole) params.set('role', filterRole)
+    if (filterDept) params.set('department', filterDept)
+    params.set('isActive', showInactive ? 'false' : 'true')
+    return params.toString()
+  }
+
+  const handleExportEmployees = async (format) => {
+    setExporting(true)
+    setExportError('')
+    setExportMsg('')
+    try {
+      const query = getExportQuery()
+      const res = await api.get(`/employees/export/${format}?${query}`, { responseType: 'blob' })
+      const ext = format === 'pdf' ? 'pdf' : 'xlsx'
+      downloadBlob(res.data, `employees-${new Date().toISOString().slice(0,10)}.${ext}`)
+      setExportMsg(`Employee ${format.toUpperCase()} export prepared successfully.`)
+    } catch (err) {
+      setExportError(err.response?.data?.message || 'Export failed. Please try again.')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   const formChange = (setter) => (e) => {
     const { name, value } = e.target
@@ -173,17 +208,26 @@ const handlePermanentDelete = async (id, name) => {
       <div className="page-header">
         <div className="page-header-left"><h2>All Employees</h2><p>{total} records</p></div>
         <div className="page-header-actions">
-  <button
-    className={`btn btn-sm ${showInactive ? 'btn-warning' : 'btn-secondary'}`}
-    onClick={() => { setShowInactive((v) => !v); setPage(1) }}
-  >
-    {showInactive ? '👥 Show Active' : '🗂 Show Inactive'}
-  </button>
-  <button className={`btn btn-${viewMode==='table'?'primary':'secondary'} btn-sm`} onClick={() => setViewMode('table')}>☰ Table</button>
-  <button className={`btn btn-${viewMode==='grid'?'primary':'secondary'} btn-sm`}  onClick={() => setViewMode('grid')}>⊞ Grid</button>
-  {!showInactive && isAdmin && <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Add Employee</button>}
-</div>
+          <button
+            className={`btn btn-sm ${showInactive ? 'btn-warning' : 'btn-secondary'}`}
+            onClick={() => { setShowInactive((v) => !v); setPage(1) }}
+          >
+            {showInactive ? '👥 Show Active' : '🗂 Show Inactive'}
+          </button>
+          <button className={`btn btn-${viewMode==='table'?'primary':'secondary'} btn-sm`} onClick={() => setViewMode('table')}>☰ Table</button>
+          <button className={`btn btn-${viewMode==='grid'?'primary':'secondary'} btn-sm`} onClick={() => setViewMode('grid')}>⊞ Grid</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => handleExportEmployees('pdf')} disabled={exporting}>Export PDF</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => handleExportEmployees('excel')} disabled={exporting}>Export Excel</button>
+          {!showInactive && isAdmin && <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Add Employee</button>}
+        </div>
       </div>
+
+      {(exportMsg || exportError) && (
+        <div style={{ margin: '0 0 16px' }}>
+          {exportMsg && <Alert type="success" message={exportMsg} />}
+          {exportError && <Alert type="error" message={exportError} />}
+        </div>
+      )}
 
       <div className="filter-bar">
         <div className="search-box">

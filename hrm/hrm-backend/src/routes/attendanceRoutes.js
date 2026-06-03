@@ -1,7 +1,8 @@
 import express from 'express';
 const router  = express.Router();
 import { checkIn, checkOut, getAttendance, getAllAttendance,
-  markAttendance, editAttendance, getTodaySummary, } from '../controllers/attendanceController.js';
+  markAttendance, editAttendance, getTodaySummary,
+  exportAttendancePdf, exportAttendanceExcel } from '../controllers/attendanceController.js';
 import { protect, authorize } from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
 import { markAttendanceValidator } from '../validators/attendanceValidators.js';
@@ -11,6 +12,10 @@ router.use(scopeToCompany);
 // Employee self-service
 router.post('/check-in',  checkIn);
 router.post('/check-out', checkOut);
+
+// Export endpoints
+router.get('/export/pdf', authorize('Admin', 'Manager'), exportAttendancePdf);
+router.get('/export/excel', authorize('Admin', 'Manager'), exportAttendanceExcel);
 
 // ⚠️  Named routes MUST come before /:employeeId to avoid param conflict
 router.get('/all',           authorize('Admin', 'Manager', 'HR'), getAllAttendance);

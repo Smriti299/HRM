@@ -2,8 +2,99 @@ import Attendance from '../models/Attendance.js';
 import Employee from '../models/Employee.js';
 import { successResponse } from '../utils/apiResponse.js';
 import { createNotification } from '../utils/notify.js';
+import { formatDateTime, getCompanyName, streamPdf, streamExcel, fitWorksheetColumns } from '../utils/exportHelpers.js';
 
 const getDateOnly = (d) => { const dt = new Date(d || Date.now()); dt.setHours(0,0,0,0); return dt; };
+
+const buildAttendanceQuery = (req) => {
+  const { month, year, from, to } = req.query;
+  if (from && to) {
+    return {
+      date: {
+        $gte: new Date(from),
+        $lte: new Date(`${to}T23:59:59`),
+      },
+    };
+  }
+
+  const m = parseInt(month) || new Date().getMonth() + 1;
+  const y = parseInt(year)  || new Date().getFullYear();
+  const start = new Date(y, m - 1, 1);
+  const end   = new Date(y, m, 0, 23, 59, 59);
+  return { date: { $gte: start, $lte: end } };
+};
+
+const buildAttendanceSummary = (records) => {
+  const total = records.length;
+  const present = records.filter((r) => r.status === 'Present').length;
+  const absent = records.filter((r) => r.status === 'Absent').length;
+  return {
+    total,
+    present,
+    absent,
+    late: records.filter((r) => r.status === 'Late').length,
+    halfDay: records.filter((r) => r.status === 'Half-Day').length,
+    onLeave: records.filter((r) => r.status === 'On-Leave').length,
+    totalHours: records.reduce((sum, r) => sum + (r.workingHours || 0), 0),
+    attendancePercentage: total ? Math.round((present / total) * 100) : 0,
+  };
+};
+
+const buildAttendancePdf = (doc, records, summary, companyName) => {
+  doc.fontSize(16).font('Helvetica-Bold').text(companyName, { align: 'center' })
+  doc.moveDown(0.25)
+  doc.fontSize(12).font('Helvetica').text('Attendance Report', { align: 'center' })
+  doc.moveDown(0.5)
+  doc.fontSize(9).fillColor('gray').text(`Generated: ${formatDateTime()}`, { align: 'center' })
+  doc.moveDown(1)
+
+  const summaryRows = [
+    ['Total Present', summary.present],
+    ['Total Absent', summary.absent],
+    ['Attendance %', `${summary.attendancePercentage}%`],
+    ['Total Hours', `${summary.totalHours.toFixed(2)}h`],
+  ];
+
+  summaryRows.forEach(([label, value]) => {
+    doc.font('Helvetica-Bold').fontSize(10).fillColor('black').text(`${label}:`, { continued: true })
+    doc.font('Helvetica').text(` ${value}`)
+  })
+  doc.moveDown(0.5)
+
+  const columns = [80, 160, 85, 85, 75, 90]
+  const headers = ['Emp ID', 'Employee Name', 'Date', 'Check In', 'Check Out', 'Status']
+  let y = doc.y
+  const margin = doc.page.margins.left
+
+  headers.forEach((header, index) => {
+    doc.font('Helvetica-Bold').fontSize(9).fillColor('black').text(header, margin + columns.slice(0, index).reduce((a,b)=>a+b,0), y, {
+      width: columns[index], align: 'left'
+    })
+  })
+  y += 20
+  doc.moveTo(margin, y - 6).lineTo(doc.page.width - margin, y - 6).stroke('#E2E8F0')
+
+  records.forEach((rec) => {
+    if (y > doc.page.height - doc.page.margins.bottom - 50) {
+      doc.addPage()
+      y = doc.y
+    }
+    const values = [
+      rec.employee?.employeeId || '—',
+      `${rec.employee?.firstName || ''} ${rec.employee?.lastName || ''}`.trim(),
+      rec.date ? new Date(rec.date).toLocaleDateString('en-IN') : '—',
+      rec.checkIn ? new Date(rec.checkIn).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—',
+      rec.checkOut ? new Date(rec.checkOut).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—',
+      rec.status || '—',
+    ]
+    values.forEach((value, index) => {
+      doc.font('Helvetica').fontSize(8).fillColor('black').text(value, margin + columns.slice(0, index).reduce((a,b)=>a+b,0), y, {
+        width: columns[index], align: 'left'
+      })
+    })
+    y += 20
+  })
+};
 
 // POST /api/attendance/check-in
 export const checkIn = async (req, res, next) => {
@@ -96,6 +187,67 @@ const filteredRecords = records.filter((r) => r.employee !== null);
     });
   } catch (err) { next(err); }
 };
+
+export const exportAttendancePdf = async (req, res, next) => {
+  try {
+    const query = { ...req.companyFilter, ...buildAttendanceQuery(req) }
+    const records = await Attendance.find(query)
+      .populate('employee', 'firstName lastName employeeId')
+      .sort({ date: 1 })
+
+    const summary = buildAttendanceSummary(records)
+    const companyName = await getCompanyName(req.user.companyId)
+    const fileName = `attendance-report-${new Date().toISOString().slice(0,10)}.pdf`
+    return streamPdf(res, fileName, (doc) => buildAttendancePdf(doc, records, summary, companyName))
+  } catch (err) { next(err); }
+}
+
+export const exportAttendanceExcel = async (req, res, next) => {
+  try {
+    const query = { ...req.companyFilter, ...buildAttendanceQuery(req) }
+    const records = await Attendance.find(query)
+      .populate('employee', 'firstName lastName employeeId')
+      .sort({ date: 1 })
+
+    const summary = buildAttendanceSummary(records)
+    const companyName = await getCompanyName(req.user.companyId)
+    const fileName = `attendance-report-${new Date().toISOString().slice(0,10)}.xlsx`
+
+    return streamExcel(res, fileName, async (workbook) => {
+      const summarySheet = workbook.addWorksheet('Summary')
+      summarySheet.addRow(['Company', companyName])
+      summarySheet.addRow(['Generated', formatDateTime()])
+      summarySheet.addRow([])
+      summarySheet.addRow(['Metric', 'Value'])
+      Object.entries({
+        'Total Records': summary.total,
+        'Present': summary.present,
+        'Absent': summary.absent,
+        'Late': summary.late,
+        'Half Day': summary.halfDay,
+        'On Leave': summary.onLeave,
+        'Total Hours': `${summary.totalHours.toFixed(2)}h`,
+        'Attendance %': `${summary.attendancePercentage}%`,
+      }).forEach(([label, value]) => summarySheet.addRow([label, value]))
+      fitWorksheetColumns(summarySheet)
+
+      const dataSheet = workbook.addWorksheet('Attendance Data')
+      dataSheet.addRow(['Employee ID', 'Employee Name', 'Date', 'Check In', 'Check Out', 'Working Hours', 'Status'])
+      records.forEach((rec) => {
+        dataSheet.addRow([
+          rec.employee?.employeeId || '—',
+          `${rec.employee?.firstName || ''} ${rec.employee?.lastName || ''}`.trim(),
+          rec.date ? new Date(rec.date).toLocaleDateString('en-IN') : '—',
+          rec.checkIn ? new Date(rec.checkIn).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—',
+          rec.checkOut ? new Date(rec.checkOut).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—',
+          rec.workingHours || 0,
+          rec.status || '—',
+        ])
+      })
+      fitWorksheetColumns(dataSheet)
+    })
+  } catch (err) { next(err); }
+}
 
 // POST /api/attendance/mark  — Admin: create or update any record
 export const markAttendance = async (req, res, next) => {

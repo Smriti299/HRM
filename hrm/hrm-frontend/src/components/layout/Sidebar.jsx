@@ -11,7 +11,7 @@ const NAV = [
   ]},
   { section: 'Workforce', roles: ['Admin', 'Manager', 'HR'], links: [
     { to: '/employees',   icon: '👥', label: 'Employees' },
-    { to: '/departments', icon: '🏢', label: 'Departments' },
+    { to: '/departments', icon: '🏢', label: 'Departments', roles: ['Admin', 'Super Admin'] },
   ]},
   { section: 'Attendance', links: [
     { to: '/attendance', icon: '📅', label: 'My Attendance' },
@@ -44,17 +44,20 @@ export default function Sidebar({ onClose }) {
           return (
             <React.Fragment key={section.section}>
               <div className="nav-section-label">{section.section}</div>
-              {section.links.map((link) => (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-                  onClick={onClose}
-                >
-                  <span className="nav-link-icon">{link.icon}</span>
-                  {link.label}
-                </NavLink>
-              ))}
+              {section.links.map((link) => {
+                if (link.roles && !link.roles.includes(user?.role)) return null
+                return (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                    onClick={onClose}
+                  >
+                    <span className="nav-link-icon">{link.icon}</span>
+                    {link.label}
+                  </NavLink>
+                )
+              })}
             </React.Fragment>
           )
         })}

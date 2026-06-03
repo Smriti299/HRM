@@ -3,6 +3,7 @@ import Layout from '../components/layout/Layout.jsx'
 import { Spinner, Badge, EmptyState, Pagination, Modal, Alert } from '../components/common/index.jsx'
 import api from '../services/api.js'
 import { formatDate, formatTime } from '../utils/helpers.js'
+import { saveAs } from 'file-saver'
 import '../styles/pages.css'
 import '../styles/components.css'
 
@@ -27,6 +28,9 @@ export default function AdminAttendance() {
   const [filterStatus, setStatus]   = useState('')
   const [searchName, setSearchName] = useState('')
   const [filterDate, setFilterDate] = useState('')
+  const [exporting, setExporting]   = useState(false)
+  const [exportMsg, setExportMsg]   = useState('')
+  const [exportError, setExportError] = useState('')
 
   // ── edit modal ───────────────────────────────────────────────────────────────
   const [showEdit, setShowEdit]     = useState(false)
@@ -95,6 +99,41 @@ export default function AdminAttendance() {
       .then((r) => setSummary(r.data.data?.summary ?? null))
       .catch(() => {})
   }, [])
+
+  const downloadBlob = (blob, filename) => {
+    const file = new Blob([blob], { type: blob.type || 'application/octet-stream' })
+    saveAs(file, filename)
+  }
+
+  const getAttendanceExportQuery = () => {
+    const params = new URLSearchParams({ month, year })
+    if (filterEmp) params.set('employeeId', filterEmp)
+    if (filterStatus) params.set('status', filterStatus)
+    if (filterDate) {
+      params.set('from', filterDate)
+      params.set('to', filterDate)
+      params.delete('month')
+      params.delete('year')
+    }
+    return params.toString()
+  }
+
+  const handleExportAttendance = async (format) => {
+    setExporting(true)
+    setExportError('')
+    setExportMsg('')
+    try {
+      const query = getAttendanceExportQuery()
+      const res = await api.get(`/attendance/export/${format}?${query}`, { responseType: 'blob' })
+      const ext = format === 'pdf' ? 'pdf' : 'xlsx'
+      downloadBlob(res.data, `attendance-${new Date().toISOString().slice(0,10)}.${ext}`)
+      setExportMsg(`Attendance ${format.toUpperCase()} export is ready.`)
+    } catch (err) {
+      setExportError(err.response?.data?.message || 'Export failed. Please try again.')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   // ── clear all filters ────────────────────────────────────────────────────────
   const clearFilters = () => {
@@ -183,9 +222,18 @@ export default function AdminAttendance() {
           <p>{total} records for {MONTHS[month - 1]} {year}</p>
         </div>
         <div className="page-header-actions">
+          <button className="btn btn-secondary" disabled={exporting} onClick={() => handleExportAttendance('pdf')}>Export Attendance PDF</button>
+          <button className="btn btn-secondary" disabled={exporting} onClick={() => handleExportAttendance('excel')}>Export Attendance Excel</button>
           <button className="btn btn-primary" onClick={() => setShowMark(true)}>+ Mark Attendance</button>
         </div>
       </div>
+
+      {(exportMsg || exportError) && (
+        <div style={{ margin: '0 0 16px' }}>
+          {exportMsg && <Alert type="success" message={exportMsg} />}
+          {exportError && <Alert type="error" message={exportError} />}
+        </div>
+      )}
 
       {/* Filter Bar */}
       <div className="filter-bar">
