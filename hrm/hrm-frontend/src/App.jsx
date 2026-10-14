@@ -14,6 +14,8 @@ import Leaves           from './pages/Leaves.jsx'
 import Payroll          from './pages/Payroll.jsx'
 import Profile          from './pages/Profile.jsx'
 import Register         from './pages/Register.jsx'
+import SuperAdminLogin from './pages/SuperAdminLogin.jsx'
+import SuperAdminCompanies from './pages/SuperAdminCompanies.jsx'
 const PrivateRoute = ({ children, roles }) => {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
@@ -24,6 +26,11 @@ const PrivateRoute = ({ children, roles }) => {
 const PublicRoute = ({ children }) => {
   const { user } = useAuth()
   return user ? <Navigate to="/dashboard" replace /> : children
+}
+
+const SuperAdminRoute = ({ children }) => {
+  const hasSession = Boolean(localStorage.getItem('hrm_token') && localStorage.getItem('hrm_super_admin'))
+  return hasSession ? children : <Navigate to="/super-admin/login" replace />
 }
 
 const AppRoutes = () => (
@@ -39,6 +46,9 @@ const AppRoutes = () => (
     <Route path="/profile"            element={<PrivateRoute><Profile /></PrivateRoute>} />
     <Route path="*"                   element={<Navigate to="/dashboard" replace />} />
     <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+    <Route path="/super-admin/login" element={<SuperAdminLogin />} />
+    <Route path="/super-admin/companies" element={<SuperAdminRoute><SuperAdminCompanies /></SuperAdminRoute>} />
+    <Route path="/super-admin" element={<Navigate to="/super-admin/companies" replace />} />
   </Routes>
 )
 

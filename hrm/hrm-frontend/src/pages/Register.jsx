@@ -11,6 +11,7 @@ export default function Register() {
     adminLastName: '', adminEmail: '', password: '',
   })
   const [error, setError]   = useState('')
+  const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
@@ -39,17 +40,7 @@ export default function Register() {
           password: form.password,
         },
       })
-      const { company } = registerRes.data.data
-      const loginRes = await api.post('/auth/login', {
-        email: form.adminEmail,
-        password: form.password,
-        companyId: company.id,
-      })
-      const { token, employee } = loginRes.data.data
-      localStorage.setItem('hrm_token', token)
-      localStorage.setItem('hrm_user', JSON.stringify(employee))
-      localStorage.setItem('hrm_company', JSON.stringify(company))
-      navigate('/dashboard')
+      setSubmitted(true)
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed')
     } finally { setLoading(false) }
@@ -64,7 +55,7 @@ export default function Register() {
         </div>
         <div className="login-headline">
           <h1>Set up your <span>company</span> in minutes.</h1>
-          <p>Register your company and get a dedicated HR portal instantly. No setup required.</p>
+          <p>Submit your company details. An administrator will review your request before access is enabled.</p>
         </div>
         <div className="login-features">
           {['Your own subdomain (company.hrm.com)', 'Complete data isolation', 'Unlimited employees on Pro plan', 'Cancel anytime'].map((f) => (
@@ -79,9 +70,16 @@ export default function Register() {
       <div className="login-right">
         <div className="login-form-container">
           <div className="login-form-header">
-            <h2>Create your account</h2>
+            <h2>{submitted ? 'Request submitted' : 'Request company access'}</h2>
             <p>Already registered? <a href="/login" style={{ color:'var(--accent)' }}>Sign in</a></p>
           </div>
+          {submitted ? (
+            <div style={{ padding: 18, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              <strong style={{ color: 'var(--text-primary)' }}>Your registration is pending review.</strong><br />
+              Your company portal will be available after approval. Please use the company email you provided to sign in once access is approved.
+              <div style={{ marginTop: 18 }}><button type="button" className="btn btn-primary" onClick={() => navigate('/login')}>Back to sign in</button></div>
+            </div>
+          ) : <>
           <Alert type="error" message={error} />
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -122,9 +120,10 @@ export default function Register() {
               <input type="password" name="password" className="form-control" value={form.password} onChange={handleChange} placeholder="Min 6 characters" required />
             </div>
             <button type="submit" className="btn btn-primary login-submit" disabled={loading}>
-              {loading ? '⏳ Creating your portal...' : 'Create Company Portal →'}
+              {loading ? 'Submitting request...' : 'Submit Registration Request →'}
             </button>
           </form>
+          </>}
         </div>
       </div>
     </div>

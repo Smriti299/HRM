@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
     const { token, employee, tenant, company } = res.data.data
     localStorage.setItem('hrm_token', token)
     localStorage.setItem('hrm_user', JSON.stringify(employee))
+    localStorage.removeItem('hrm_super_admin')
     if (company) {
       localStorage.setItem('hrm_company', JSON.stringify(company))
       setCompany(company)

@@ -8,7 +8,11 @@ import '../styles/login.css'
 
 export default function Login() {
   const [form, setForm]       = useState({ email: '', password: '', slug: '' })
-  const [error, setError]     = useState('')
+  const [error, setError]     = useState(() => {
+    const notice = localStorage.getItem('hrm_access_notice')
+    if (notice) localStorage.removeItem('hrm_access_notice')
+    return notice || ''
+  })
   const [loading, setLoading] = useState(false)
   const { login }             = useAuth()
   const navigate              = useNavigate()

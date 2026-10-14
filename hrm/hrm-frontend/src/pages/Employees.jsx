@@ -118,11 +118,14 @@ const res = await api.get(`/employees?${p}`)
     }
   }
 
-  const formChange = (setter) => (e) => {
+  const formChange = (setter, allowEmptySalary = false) => (e) => {
     const { name, value } = e.target
     if (name.startsWith('salary.')) {
       const k = name.split('.')[1]
-      setter((f) => ({ ...f, salary: { ...f.salary, [k]: Number(value) } }))
+      setter((f) => ({
+        ...f,
+        salary: { ...f.salary, [k]: allowEmptySalary && value === '' ? '' : Number(value) },
+      }))
     } else {
       setter((f) => ({ ...f, [name]: value }))
     }
@@ -131,7 +134,13 @@ const res = await api.get(`/employees?${p}`)
   const handleAdd = async (e) => {
     e.preventDefault(); setAddSaving(true); setAddError('')
     try {
-      await api.post('/employees', addForm)
+      const payload = {
+        ...addForm,
+        salary: Object.fromEntries(
+          Object.entries(addForm.salary).map(([key, value]) => [key, value === '' ? 0 : Number(value)])
+        ),
+      }
+      await api.post('/employees', payload)
       setShowAdd(false); setAddForm(EMPTY_ADD); fetchEmployees()
     } catch (err) { setAddError(err.response?.data?.message || 'Failed to create') }
     finally { setAddSaving(false) }
@@ -372,7 +381,7 @@ const handlePermanentDelete = async (id, name) => {
             <div className="form-group"><label className="form-label">Designation</label><input name="designation" className="form-control" value={addForm.designation} onChange={formChange(setAddForm)} /></div>
           </div>
           <div className="form-group"><label className="form-label">Joining Date</label><input type="date" name="joiningDate" className="form-control" value={addForm.joiningDate} onChange={formChange(setAddForm)} /></div>
-          <SalaryFields form={addForm} onChange={formChange(setAddForm)} />
+          <SalaryFields form={addForm} onChange={formChange(setAddForm, true)} />
         </Modal>
       )}
 
